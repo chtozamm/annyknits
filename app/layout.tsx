@@ -29,7 +29,10 @@ export default function RootLayout({
   }
   const [isOpen, setIsOpen] = useState(false);
   return (
-    <html lang="en" className={`bg-${theme}-primary select-none`}>
+    <html
+      lang="en"
+      className={`bg-${theme}-primary h-screen w-screen touch-none select-none overflow-hidden`}
+    >
       <head>
         <head>
           <link rel="manifest" href="/manifest.json" />
