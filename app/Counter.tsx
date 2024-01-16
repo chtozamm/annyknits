@@ -6,37 +6,46 @@ import { motion } from "framer-motion";
 export default function Counter() {
   const [count, setCount] = useState<number | null>(null);
   useEffect(() => {
-    setCount(Number(localStorage.getItem("count")) || 1);
+    setCount(Number(localStorage.getItem("count")) || 0);
+    const body = document.querySelector("body");
+    body?.addEventListener("keydown", handleKeypress);
+    return () => {
+      body?.removeEventListener("keydown", handleKeypress);
+    };
   }, []);
+  const handleKeypress = (e: any) => {
+    if (e.key === "ArrowUp") handleAdd();
+    if (e.key === "ArrowDown") handleSubtract();
+  };
   useEffect(() => {
     if (count) localStorage.setItem("count", String(count));
   }, [count]);
   const handleSubtract = () => {
-    setCount((prev) => prev! - 1);
+    setCount((prev) => (prev && prev > 0 ? prev - 1 : prev));
   };
   const handleAdd = () => {
     setCount((prev) => prev! + 1);
   };
   // Reset counter
   const handleDoubleClick = () => {
-    setCount(1);
-    localStorage.setItem("count", "1");
+    setCount(0);
+    localStorage.setItem("count", "0");
   };
   return (
-    count && (
-      <div className="flex flex-col items-center justify-evenly">
+    count !== null && (
+      <div className="flex w-full flex-col items-center justify-evenly">
         <Button onClick={handleAdd}>
           <SVG>
             <path d="M18 15l-6-6-6 6" />
           </SVG>
         </Button>
         <p
-          className="select-none text-9xl font-semibold text-white"
+          className="select-none text-9xl font-bold text-white drop-shadow-sm"
           onDoubleClick={handleDoubleClick}
         >
           {count}
         </p>
-        <Button onClick={handleSubtract} disabled={count <= 1}>
+        <Button onClick={handleSubtract} disabled={count <= 0}>
           <SVG>
             <path d="M6 9l6 6 6-6" />
           </SVG>
@@ -49,10 +58,10 @@ export default function Counter() {
 const Button = ({ ...props }) => (
   <div className="relative">
     <motion.button
-      whileTap={{ scale: [1, 1.25, 1] }}
+      whileTap={{ scale: 1.25 }}
       transition={{ duration: 0.2 }}
-      className="group flex aspect-square w-fit items-center justify-items-center rounded-full p-8 text-6xl font-light
-      active:bg-[#ff8d8e] disabled:opacity-0 lg:hover:bg-[#ff8d8e] lg:focus-visible:bg-[#ff8d8e]"
+      className="group flex aspect-square w-fit items-center justify-items-center rounded-full p-8 text-6xl
+      opacity-50 active:opacity-100 disabled:opacity-0 lg:hover:opacity-100 lg:focus-visible:opacity-100"
       {...props}
     >
       {props.children}
@@ -63,13 +72,13 @@ const Button = ({ ...props }) => (
 const SVG = ({ children }: { children: React.ReactNode }) => (
   <svg
     fill="none"
-    height="80"
     shapeRendering="geometricPrecision"
     stroke="currentColor"
     strokeWidth="2.5"
     viewBox="0 0 24 24"
+    height="80"
     width="80"
-    className="h-24 w-24 rounded-full text-[#ff9a9b] group-active:text-[#fedfdf] group-disabled:text-transparent lg:group-hover:text-[#fedfdf] lg:group-focus-visible:text-[#fedfdf]"
+    className="h-24 w-24 rounded-full text-white group-active:opacity-75 group-disabled:text-transparent lg:group-hover:opacity-75 lg:group-focus-visible:opacity-75"
   >
     {children}
   </svg>
