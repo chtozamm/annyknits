@@ -49,10 +49,10 @@ export default function RootLayout({
             className="flex flex-col items-center"
           >
             <motion.button
-              className="group absolute right-6 top-6 text-white opacity-50 active:opacity-100 md:hover:opacity-100 lg:focus-visible:opacity-100"
+              className={`group absolute right-6 top-6 text-white ${isOpen ? "opacity-100" : "opacity-50"}`}
               onClick={() => setIsOpen(!isOpen)}
             >
-              <SettingsIcon />
+              <BrushIcon />
             </motion.button>
             <motion.ul
               animate={isOpen ? "open" : "closed"}
@@ -78,7 +78,7 @@ export default function RootLayout({
   );
 }
 
-const SettingsIcon = () => (
+const BrushIcon = () => (
   <svg
     fill="none"
     shapeRendering="geometricPrecision"
@@ -89,9 +89,12 @@ const SettingsIcon = () => (
     strokeWidth="1.5"
     viewBox="0 0 24 24"
     width="24"
-    className="h-6 w-6"
+    className="h-8 w-8"
   >
-    <circle cx="12" cy="12" r="3" />
-    <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      d="M9.53 16.122a3 3 0 0 0-5.78 1.128 2.25 2.25 0 0 1-2.4 2.245 4.5 4.5 0 0 0 8.4-2.245c0-.399-.078-.78-.22-1.128Zm0 0a15.998 15.998 0 0 0 3.388-1.62m-5.043-.025a15.994 15.994 0 0 1 1.622-3.395m3.42 3.42a15.995 15.995 0 0 0 4.764-4.648l3.876-5.814a1.151 1.151 0 0 0-1.597-1.597L14.146 6.32a15.996 15.996 0 0 0-4.649 4.763m3.42 3.42a6.776 6.776 0 0 0-3.42-3.42"
+    />
   </svg>
 );
