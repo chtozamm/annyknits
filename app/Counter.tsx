@@ -6,20 +6,24 @@ import { motion } from "framer-motion";
 export default function Counter() {
   const [count, setCount] = useState<number | null>(null);
   useEffect(() => {
+    const handleKeypress = (e: KeyboardEvent) => {
+      if (e.key === "ArrowUp") handleAdd();
+      if (e.key === "ArrowDown") handleSubtract();
+    };
+
     setCount(Number(localStorage.getItem("count")) || 0);
-    const body = document.querySelector("body");
-    body?.addEventListener("keydown", handleKeypress);
+
+    window.addEventListener("keydown", handleKeypress);
+
     return () => {
-      body?.removeEventListener("keydown", handleKeypress);
+      window.removeEventListener("keydown", handleKeypress);
     };
   }, []);
-  const handleKeypress = (e: any) => {
-    if (e.key === "ArrowUp") handleAdd();
-    if (e.key === "ArrowDown") handleSubtract();
-  };
+
   useEffect(() => {
     if (count) localStorage.setItem("count", String(count));
   }, [count]);
+
   const handleSubtract = () => {
     setCount((prev) => (prev && prev > 0 ? prev - 1 : prev));
   };
