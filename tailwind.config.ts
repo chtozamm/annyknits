@@ -35,6 +35,9 @@ const config: Config = {
         cyan: {
           primary: "#0891b2",
         },
+        green: {
+          primary: "#15803d",
+        },
       },
       fontFamily: {
         sans: ["var(--font-geist-sans)"],
@@ -58,6 +61,7 @@ const config: Config = {
     "bg-rose-primary",
     "bg-indigo-primary",
     "bg-cyan-primary",
+    "bg-green-primary",
     // "accent-red-primary",
     // "accent-orange-primary",
     // "accent-mint-primary",

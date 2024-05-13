@@ -99,6 +99,9 @@ export default function Counter() {
     counters &&
     currentCounter !== null && (
       <div className="flex w-full flex-col items-center justify-evenly">
+        {isOpen && (
+          <div className="absolute left-0 top-0 z-10 h-screen w-screen bg-black bg-opacity-50"></div>
+        )}
         <section
           id="counter-picker"
           className={`${isOpen && "rounded-lg bg-black bg-opacity-20"} absolute left-4 top-4 z-10 flex select-none flex-col items-start justify-start gap-2 p-2 text-left font-medium text-white`}
@@ -109,11 +112,13 @@ export default function Counter() {
               <h1
                 key={idx}
                 onClick={() => setIsOpen(!isOpen)}
-                className={`${isOpen && counters.length > 1 && "border-b border-white border-opacity-20 pb-2"} flex w-full items-center gap-1.5 font-semibold`}
+                className={`${isOpen && counters.length > 1 && "border-b border-white border-opacity-20 pb-2"} flex w-full items-center gap-1.5 font-semibold sm:text-xl`}
               >
                 {counter.icon && (
                   <span className="relative inline-flex aspect-square w-8 items-center justify-center rounded-full bg-black bg-opacity-20">
-                    <span className="absolute">{counter.icon}</span>
+                    <span className="absolute text-lg sm:text-xl">
+                      {counter.icon}
+                    </span>
                   </span>
                 )}
                 {counter.name}
@@ -155,7 +160,7 @@ export default function Counter() {
             return (
               <button
                 key={idx}
-                className={`${isOpen ? "block" : "hidden"} w-full px-1 py-1 text-left text-sm`}
+                className={`${isOpen ? "block" : "hidden"} w-full px-1 py-1 text-left text-sm sm:text-base`}
                 onClick={() => {
                   dispatch(setCurrentCounter(idx));
                   setIsOpen(false);
@@ -163,6 +168,7 @@ export default function Counter() {
               >{`${counter.icon || ""} ${counter.name}: ${counter.value}`}</button>
             );
           })}
+
           <button
             onClick={() => {
               dispatch(
@@ -176,7 +182,7 @@ export default function Counter() {
               dispatch(setCurrentCounter(counters.length));
               setIsOpen(false);
             }}
-            className={`${isOpen ? "block" : "hidden"} w-full border-t border-white border-opacity-20 pt-2 text-sm`}
+            className={`${isOpen ? "block" : "hidden"} w-full border-t border-white border-opacity-20 pt-2 text-sm sm:text-base`}
           >
             + Add new
           </button>
