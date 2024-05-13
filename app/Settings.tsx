@@ -62,7 +62,7 @@ export default function Settings() {
   }, [theme]);
   return (
     <>
-      <footer className="absolute bottom-6 left-0 z-20 w-full px-4">
+      <footer className="absolute bottom-8 left-0 z-20 w-full px-4">
         <div
           className={`flex w-full items-center justify-evenly rounded-xl bg-opacity-10 ${isOpen ? "bg-white" : "bg-black"} font-mono text-white`}
         >
