@@ -101,7 +101,7 @@ export default function Counter() {
       <div className="flex w-full flex-col items-center justify-evenly">
         <section
           id="counter-picker"
-          className={`${isOpen && "rounded-lg bg-black bg-opacity-10"} absolute left-4 top-4 flex select-none flex-col items-start justify-start gap-2 p-2 text-left font-medium text-white`}
+          className={`${isOpen && "rounded-lg bg-black bg-opacity-20"} absolute left-4 top-4 z-10 flex select-none flex-col items-start justify-start gap-2 p-2 text-left font-medium text-white`}
         >
           {counters
             .filter((_, idx) => idx === currentCounter)
@@ -155,7 +155,7 @@ export default function Counter() {
             return (
               <button
                 key={idx}
-                className={`${isOpen ? "block" : "hidden"} text-sm`}
+                className={`${isOpen ? "block" : "hidden"} w-full px-1 py-1 text-left text-sm`}
                 onClick={() => {
                   dispatch(setCurrentCounter(idx));
                   setIsOpen(false);
@@ -178,21 +178,7 @@ export default function Counter() {
             }}
             className={`${isOpen ? "block" : "hidden"} w-full border-t border-white border-opacity-20 pt-2 text-sm`}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="inline h-4 w-4 text-white"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 4.5v15m7.5-7.5h-15"
-              />
-            </svg>{" "}
-            Add new
+            + Add new
           </button>
         </section>
         <Button onClick={handleIncrease}>
