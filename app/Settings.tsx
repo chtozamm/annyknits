@@ -223,11 +223,11 @@ export default function Settings() {
                             addCounter({
                               name: "New counter",
                               value: 0,
-                              theme: "red",
+                              theme: "indigo",
                               icon: "🧶",
                             }),
                           );
-                          dispatch(setThemeState("red"));
+                          dispatch(setThemeState("indigo"));
                         }
                         dispatch(deleteCounter(currentCounter!));
                         setShowDialog(false);
