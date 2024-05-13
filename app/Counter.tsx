@@ -2,16 +2,51 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
+import {
+  addCounter,
+  decreaseCounter,
+  increaseCounter,
+  resetCounter,
+  selectCounters,
+  selectCurrentCounter,
+  setCounterState,
+  setCurrentCounter,
+  updateCounter,
+} from "@/lib/redux/features/counters/countersSlice";
+import { setThemeState } from "@/lib/redux/features/theme/themeSlice";
+// import { selectShowLabel } from "@/lib/redux/features/settings/settingsSlice";
 
 export default function Counter() {
-  const [count, setCount] = useState<number | null>(null);
-  useEffect(() => {
-    const handleKeypress = (e: KeyboardEvent) => {
-      if (e.key === "ArrowUp") handleAdd();
-      if (e.key === "ArrowDown") handleSubtract();
-    };
+  const dispatch = useAppDispatch();
+  // const showLabel = useAppSelector(selectShowLabel);
+  const counters = useAppSelector(selectCounters);
+  const currentCounter = useAppSelector(selectCurrentCounter);
+  const [isOpen, setIsOpen] = useState(false);
 
-    setCount(Number(localStorage.getItem("count")) || 0);
+  useEffect(() => {
+    if (counters.length < 1) {
+      dispatch(
+        setCounterState(
+          JSON.parse(String(localStorage.getItem("counters"))) || [
+            {
+              name: "New counter",
+              value: 0,
+              theme: "indigo",
+              icon: "🧶",
+            },
+          ],
+        ),
+      );
+      dispatch(
+        setCurrentCounter(Number(localStorage.getItem("current_counter")) || 0),
+      );
+    }
+
+    const handleKeypress = (e: KeyboardEvent) => {
+      if (e.key === "ArrowUp") handleIncrease();
+      if (e.key === "ArrowDown") handleDecrease();
+    };
 
     window.addEventListener("keydown", handleKeypress);
 
@@ -21,35 +56,160 @@ export default function Counter() {
   }, []);
 
   useEffect(() => {
-    if (count) localStorage.setItem("count", String(count));
-  }, [count]);
+    counters.length > 0 &&
+      localStorage.setItem("counters", JSON.stringify(counters));
+  }, [counters]);
 
-  const handleSubtract = () => {
-    setCount((prev) => (prev && prev > 0 ? prev - 1 : prev));
+  useEffect(() => {
+    if (currentCounter !== null) {
+      localStorage.setItem("current_counter", currentCounter.toString());
+      counters[currentCounter]?.theme &&
+        dispatch(setThemeState(counters[currentCounter]?.theme));
+    }
+  }, [currentCounter]);
+
+  const handleIncrease = () => {
+    dispatch(increaseCounter(currentCounter!));
   };
-  const handleAdd = () => {
-    setCount((prev) => prev! + 1);
+  const handleDecrease = () => {
+    dispatch(decreaseCounter(currentCounter!));
   };
   // Reset counter
   const handleDoubleClick = () => {
-    setCount(0);
-    localStorage.setItem("count", "0");
+    dispatch(resetCounter(currentCounter!));
   };
+
+  useEffect(() => {
+    // Close counter picker when click outside of it
+    const handleClickOutside = (e: MouseEvent) => {
+      const counterPicker = document.getElementById(
+        "counter-picker",
+      ) as HTMLElement;
+      if (isOpen && !counterPicker.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener("click", handleClickOutside);
+    return () => {
+      window.removeEventListener("click", handleClickOutside);
+    };
+  }, [isOpen]);
+
   return (
-    count !== null && (
+    counters &&
+    currentCounter !== null && (
       <div className="flex w-full flex-col items-center justify-evenly">
-        <Button onClick={handleAdd}>
+        <section
+          id="counter-picker"
+          className={`${isOpen && "rounded-lg bg-black bg-opacity-10"} absolute left-4 top-4 flex select-none flex-col items-start justify-start gap-2 p-2 text-left font-medium text-white`}
+        >
+          {counters
+            .filter((_, idx) => idx === currentCounter)
+            .map((counter, idx) => (
+              <h1
+                key={idx}
+                onClick={() => setIsOpen(!isOpen)}
+                className={`${isOpen && counters.length > 1 && "border-b border-white border-opacity-20 pb-2"} flex w-full items-center gap-1.5 font-semibold`}
+              >
+                {counter.icon && (
+                  <span className="relative inline-flex aspect-square w-8 items-center justify-center rounded-full bg-black bg-opacity-20">
+                    <span className="absolute">{counter.icon}</span>
+                  </span>
+                )}
+                {counter.name}
+                {isOpen ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="inline h-3 w-3"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="m4.5 15.75 7.5-7.5 7.5 7.5"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="inline h-3 w-3"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                    />
+                  </svg>
+                )}
+              </h1>
+            ))}
+          {counters.map((counter, idx) => {
+            if (idx === currentCounter) return null;
+            return (
+              <button
+                key={idx}
+                className={`${isOpen ? "block" : "hidden"} text-sm`}
+                onClick={() => {
+                  dispatch(setCurrentCounter(idx));
+                  setIsOpen(false);
+                }}
+              >{`${counter.icon || ""} ${counter.name}: ${counter.value}`}</button>
+            );
+          })}
+          <button
+            onClick={() => {
+              dispatch(
+                addCounter({
+                  name: "New counter",
+                  value: 0,
+                  theme: "indigo",
+                  icon: "🧶",
+                }),
+              );
+              dispatch(setCurrentCounter(counters.length));
+              setIsOpen(false);
+            }}
+            className={`${isOpen ? "block" : "hidden"} w-full border-t border-white border-opacity-20 pt-2 text-sm`}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="inline h-4 w-4 text-white"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 4.5v15m7.5-7.5h-15"
+              />
+            </svg>{" "}
+            Add new
+          </button>
+        </section>
+        <Button onClick={handleIncrease}>
           <SVG>
             <path d="M18 15l-6-6-6 6" />
           </SVG>
         </Button>
         <p
-          className="select-none text-9xl font-bold text-white drop-shadow-sm"
+          className="select-none font-mono text-9xl font-bold text-white drop-shadow-sm"
           onDoubleClick={handleDoubleClick}
         >
-          {count}
+          {counters[currentCounter]?.value || 0}
         </p>
-        <Button onClick={handleSubtract} disabled={count <= 0}>
+        <Button
+          onClick={handleDecrease}
+          disabled={counters[currentCounter]?.value <= 0}
+        >
           <SVG>
             <path d="M6 9l6 6 6-6" />
           </SVG>
@@ -65,7 +225,7 @@ const Button = ({ ...props }) => (
       whileTap={{ scale: 1.25 }}
       transition={{ duration: 0.2 }}
       className="group flex aspect-square w-fit items-center justify-items-center rounded-full p-8 text-6xl
-      opacity-50 active:opacity-100 disabled:opacity-0 lg:hover:opacity-100 lg:focus-visible:opacity-100"
+      opacity-50 active:opacity-100 disabled:opacity-0 hover:disabled:opacity-0 lg:hover:opacity-100 lg:focus-visible:opacity-100"
       {...props}
     >
       {props.children}

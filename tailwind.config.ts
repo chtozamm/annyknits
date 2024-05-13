@@ -10,25 +10,42 @@ const config: Config = {
     extend: {
       colors: {
         red: {
-          primary: "#ff6f70",
+          primary: "#f87171",
           secondary: "#ff9a9b",
           interactive: "#fedfdf",
         },
         orange: {
-          primary: "#ffaa66",
+          primary: "#fb923c",
         },
         mint: {
-          primary: "#6ee7b7",
+          primary: "#34d399",
         },
         sky: {
-          primary: "#7dd3fc",
+          primary: "#38bdf8",
         },
         lavender: {
-          primary: "#a78bfa",
+          primary: "#8b5cf6",
         },
         rose: {
-          primary: "#fb7185",
+          primary: "#f43f5e",
         },
+        indigo: {
+          primary: "#3730a3",
+        },
+        cyan: {
+          primary: "#0891b2",
+        },
+      },
+      fontFamily: {
+        sans: ["var(--font-geist-sans)"],
+        mono: ["var(--font-geist-mono)"],
+      },
+      fontSize: {
+        xs: "13px",
+        "2xs": "12px",
+        "3xs": "11px",
+        "4xs": "10px",
+        "5xs": "9px",
       },
     },
   },
@@ -39,6 +56,15 @@ const config: Config = {
     "bg-sky-primary",
     "bg-lavender-primary",
     "bg-rose-primary",
+    "bg-indigo-primary",
+    "bg-cyan-primary",
+    // "accent-red-primary",
+    // "accent-orange-primary",
+    // "accent-mint-primary",
+    // "accent-sky-primary",
+    // "accent-lavender-primary",
+    // "accent-rose-primary",
+    // "accent-indigo-primary",
   ],
   plugins: [],
 };
