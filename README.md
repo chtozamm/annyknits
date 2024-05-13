@@ -44,3 +44,5 @@ npm run start
 - Export counters (name: value) as a text file or csv via settings;
 
 - Split mode: have multiple controllable counter on screen at the same time;
+
+- Either lock orientation or change counter and buttons layout;

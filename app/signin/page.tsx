@@ -3,7 +3,7 @@ import SignForm from "./SigninForm";
 
 export default function Signin() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gray-50 text-sm">
+    <main className="flex h-screen flex-col items-center justify-center bg-gray-50 text-sm">
       <div className="flex flex-col items-center justify-center gap-4 rounded-xl border bg-white px-32 py-16">
         <h1 className="mb-8 text-3xl font-semibold">Sign in</h1>
         <SignForm />

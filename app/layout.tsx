@@ -15,7 +15,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${GeistSans.variable} ${GeistMono.variable} font-sans`}>
+      <body
+        className={`${GeistSans.variable} ${GeistMono.variable} h-screen w-screen overflow-hidden font-sans`}
+      >
         {children}
       </body>
     </html>

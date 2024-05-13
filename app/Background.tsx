@@ -11,7 +11,7 @@ export default function Background() {
   const counters = useAppSelector(selectCounters);
   return (
     <div
-      className={`absolute left-0 top-0 min-h-screen w-screen ${`bg-${counters[currentCounter!]?.theme}-primary`}`}
+      className={`absolute left-0 top-0 h-screen w-screen ${`bg-${counters[currentCounter!]?.theme}-primary`}`}
     />
   );
 }

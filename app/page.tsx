@@ -14,7 +14,7 @@ export default function Home() {
   //   .eq("user_id", userId?.value);
   // console.log(data.data);
   return (
-    <main className="mx-auto flex min-h-screen w-screen max-w-md flex-col items-center justify-center font-sans">
+    <main className="mx-auto flex h-screen w-screen max-w-md flex-col items-center justify-center font-sans">
       <StoreProvider>
         <LocalStorage />
         <Background />

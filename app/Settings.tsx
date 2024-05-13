@@ -62,7 +62,7 @@ export default function Settings() {
   }, [theme]);
   return (
     <>
-      <footer className="absolute bottom-4 left-0 z-20 w-full px-4">
+      <footer className="absolute bottom-6 left-0 z-20 w-full px-4">
         <div
           className={`flex w-full items-center justify-evenly rounded-xl bg-opacity-10 ${isOpen ? "bg-white" : "bg-black"} font-mono text-white`}
         >
@@ -101,7 +101,7 @@ export default function Settings() {
         </div>
       </footer>
       {isOpen && (
-        <div className="absolute z-10 flex min-h-screen w-screen flex-col items-center bg-black p-8 text-white">
+        <div className="absolute z-10 flex h-screen w-screen flex-col items-center overflow-y-scroll bg-black p-8 pb-20 text-white">
           <div className="mx-auto flex w-full flex-col gap-8 sm:max-w-md">
             <label className="select-none text-center text-xs font-semibold uppercase">
               Customization
