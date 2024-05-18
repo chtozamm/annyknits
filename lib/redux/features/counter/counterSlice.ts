@@ -7,45 +7,48 @@ type Counter = {
   theme: string;
   icon: string;
   goal: number | null;
+  created_at: Date;
 };
+
+type Counters = { [id: number]: Counter };
 
 // Define a type for the slice state
 interface CounterState {
-  counters: Counter[];
-  current: number | null;
-  split: number | null;
-  // current: number;
+  counters: Counters;
+  current: number;
+  amount: number;
+  next: number[];
 }
 
 // Define the initial state using that type
 const initialState: CounterState = {
-  counters: [],
-  current: null,
-  split: null,
-  // current: 0,
+  counters: {},
+  current: 0,
+  amount: 0,
+  next: [],
 };
 
-export const countersSlice = createSlice({
-  name: "counters",
+export const counterSlice = createSlice({
+  name: "counter",
   // `createSlice` will infer the state type from the `initialState` argument
   initialState,
   reducers: {
     // Use the PayloadAction type to declare the contents of `action.payload`
-    setCounterState: (
-      state,
-      // action: PayloadAction<{ counter: Counter; id: string }>,
-      action: PayloadAction<Counter[]>,
-    ) => {
+    setCounters: (state, action: PayloadAction<Counters>) => {
       state.counters = action.payload;
     },
     setCurrentCounter: (state, action: PayloadAction<number>) => {
       state.current = action.payload;
     },
-    setSplitCounter: (state, action: PayloadAction<number | null>) => {
-      state.split = action.payload;
-    },
     addCounter: (state, action: PayloadAction<Counter>) => {
-      state.counters.push(action.payload);
+      if (state.next.length > 0) {
+        state.counters[state.next[state.next.length - 1]] = action.payload;
+        state.next.pop();
+      } else {
+        state.counters[state.amount] = action.payload;
+      }
+      state.amount++;
+      state.current;
     },
     // updateCounter: (
     //   state,
@@ -96,7 +99,7 @@ export const countersSlice = createSlice({
       if (state.current !== 0 && state.current! >= action.payload) {
         state.current! -= 1;
       }
-      state.counters = state.counters.toSpliced(action.payload, 1);
+      // state.counters = state.counters.toSpliced(action.payload, 1);
     },
     increaseCounter: (state, action: PayloadAction<number>) => {
       state.counters[action.payload].value += 1;
@@ -111,29 +114,19 @@ export const countersSlice = createSlice({
 });
 
 export const {
-  setCounterState,
+  setCounters,
   setCurrentCounter,
-  setSplitCounter,
   addCounter,
   // updateCounter,
-  updateLabel,
-  updateValue,
-  updateGoal,
-  updateTheme,
-  updateIcon,
   deleteCounter,
   increaseCounter,
   decreaseCounter,
   resetCounter,
-  resetGoal,
-  resetLabel,
-  resetValue,
-} = countersSlice.actions;
+} = counterSlice.actions;
 
 // Other code such as selectors can use the imported `RootState` type
 export const selectCounters = (state: RootState) => state.counters.counters;
 export const selectCurrentCounter = (state: RootState) =>
   state.counters.current;
-export const selectSplitCounter = (state: RootState) => state.counters.split;
 
-export default countersSlice.reducer;
+export default counterSlice.reducer;

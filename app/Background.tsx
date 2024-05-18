@@ -5,13 +5,21 @@ import {
   selectCurrentCounter,
 } from "@/lib/redux/features/counters/countersSlice";
 import { useAppSelector } from "@/lib/redux/hooks";
+import { motion } from "framer-motion";
 
-export default function Background() {
-  const currentCounter = useAppSelector(selectCurrentCounter);
+type BackgroundProps = { currentCounter: number; split?: boolean };
+
+export default function Background({ currentCounter, split }: BackgroundProps) {
+  // const currentCounter = useAppSelector(selectCurrentCounter);
   const counters = useAppSelector(selectCounters);
+  if (currentCounter === null) return;
   return (
     <div
-      className={`absolute left-0 top-0 h-screen w-screen ${`bg-${counters[currentCounter!]?.theme}-primary`}`}
-    />
+      // initial={{ opacity: 0 }}
+      // animate={{ opacity: 1 }}
+      // transition={{ duration: 1, ease: "easeOut" }}
+      // transition-colors duration-1000 ease-out
+      className={`absolute inset-0 flex h-full w-full items-center justify-center ${`bg-${counters[currentCounter]?.theme}-primary`}`}
+    ></div>
   );
 }

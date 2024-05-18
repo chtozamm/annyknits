@@ -1,241 +1,268 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useAnimationControls } from "framer-motion";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import {
-  addCounter,
   decreaseCounter,
   increaseCounter,
   resetCounter,
   selectCounters,
-  selectCurrentCounter,
-  setCounterState,
-  setCurrentCounter,
-  updateCounter,
+  selectSplitCounter,
+  setSplitCounter,
 } from "@/lib/redux/features/counters/countersSlice";
-import { setThemeState } from "@/lib/redux/features/theme/themeSlice";
-// import { selectShowLabel } from "@/lib/redux/features/settings/settingsSlice";
+import { setPageState } from "@/lib/redux/features/page/pageSlice";
+import { pageTransition } from "./animations";
+import CounterPicker from "./CounterPicker";
+import { ChevronDownIcon, ChevronUpIcon, SettingsIcon } from "./icons";
+import { useWindowResize } from "./hooks";
+import Background from "./Background";
+import Settings from "./Settings";
+import {
+  selectIsSplit,
+  setIsSplit,
+} from "@/lib/redux/features/split/splitSlice";
 
-export default function Counter() {
+type CounterProps = { currentCounter: number; split?: boolean };
+
+export default function Counter({ currentCounter, split }: CounterProps) {
   const dispatch = useAppDispatch();
-  // const showLabel = useAppSelector(selectShowLabel);
   const counters = useAppSelector(selectCounters);
-  const currentCounter = useAppSelector(selectCurrentCounter);
-  const [isOpen, setIsOpen] = useState(false);
+  const resetAnimationControls = useAnimationControls();
+  const valueAnimationControls = useAnimationControls();
+  const completeAnimationControls = useAnimationControls();
+  const windowSize = useWindowResize();
+  const [showSettings, setShowSettings] = useState(false);
+  const isSplit = useAppSelector(selectIsSplit);
+  const splitCounter = useAppSelector(selectSplitCounter);
+  const settingsRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (counters.length < 1) {
-      dispatch(
-        setCounterState(
-          JSON.parse(String(localStorage.getItem("counters"))) || [
-            {
-              name: "New counter",
-              value: 0,
-              theme: "indigo",
-              icon: "🧶",
-            },
-          ],
-        ),
-      );
-      dispatch(
-        setCurrentCounter(Number(localStorage.getItem("current_counter")) || 0),
-      );
-    }
+  // // Keypress handler
+  // useEffect(() => {
+  //   const handleKeypress = (e: KeyboardEvent) => {
+  //     if (currentPage === "counter") {
+  //       if (e.key === "ArrowUp") handleIncrease();
+  //       if (e.key === "ArrowDown") handleDecrease();
+  //       if (e.key === "ArrowRight") dispatch(setPageState("settings"));
+  //     } else {
+  //       if (e.key === "Escape") dispatch(setPageState("counter"));
+  //     }
+  //     // if (e.key === "ArrowRight") dispatch(setPageState("settings"));
+  //     // if (e.key === "ArrowLeft") dispatch(setPageState("counter"));
+  //   };
+  //   window.addEventListener("keydown", handleKeypress);
+  //   return () => {
+  //     window.removeEventListener("keydown", handleKeypress);
+  //   };
+  // }, [currentCounter, counters, currentPage]);
 
-    const handleKeypress = (e: KeyboardEvent) => {
-      if (e.key === "ArrowUp") handleIncrease();
-      if (e.key === "ArrowDown") handleDecrease();
-    };
+  // useEffect(() => {
+  //   // Close settings when click outside of its container
+  //   const handleClickOutside = (e: MouseEvent) => {
+  //     // const settingsContainer = document.getElementById("settings");
+  //     const settingsContainer = document.getElementById("settings");
+  //     const openSettingsButton = document.getElementById("open-settings");
+  //     if (
+  //       settingsContainer &&
+  //       openSettingsButton &&
+  //       showSettings &&
+  //       !settingsContainer.contains(e.target as Node) &&
+  //       !openSettingsButton.contains(e.target as Node)
+  //     ) {
+  //       setShowSettings(false);
+  //     }
+  //   };
+  //   window.addEventListener("click", handleClickOutside);
+  //   return () => {
+  //     window.removeEventListener("click", handleClickOutside);
+  //   };
+  // }, [showSettings]);
 
-    window.addEventListener("keydown", handleKeypress);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeypress);
-    };
-  }, []);
-
-  useEffect(() => {
-    counters.length > 0 &&
-      localStorage.setItem("counters", JSON.stringify(counters));
-  }, [counters]);
-
-  useEffect(() => {
-    if (currentCounter !== null) {
-      localStorage.setItem("current_counter", currentCounter.toString());
-      counters[currentCounter]?.theme &&
-        dispatch(setThemeState(counters[currentCounter]?.theme));
-    }
-  }, [currentCounter]);
-
+  // Counter value controllers
   const handleIncrease = () => {
-    dispatch(increaseCounter(currentCounter!));
+    if (currentCounter === null) return;
+    if (
+      counters[currentCounter].goal !== null
+        ? counters[currentCounter].value >= counters[currentCounter].goal!
+        : false
+    )
+      return;
+    if (
+      !!counters[currentCounter].goal &&
+      counters[currentCounter].goal === counters[currentCounter]?.value + 1
+    ) {
+      completeAnimationControls.start({ opacity: [1, 0], scale: 25 });
+      completeAnimationControls.set({ scale: 1 });
+    }
+    dispatch(increaseCounter(currentCounter));
   };
   const handleDecrease = () => {
-    dispatch(decreaseCounter(currentCounter!));
+    if (currentCounter === null || counters[currentCounter].value === 0) return;
+    dispatch(decreaseCounter(currentCounter));
   };
-  // Reset counter
+  // Resets counter value to 0
   const handleDoubleClick = () => {
-    dispatch(resetCounter(currentCounter!));
+    if (currentCounter === null) return;
+    if (counters[currentCounter]?.value === 0) return;
+    resetAnimationControls.start({ opacity: [0, 0.1, 0] });
+    dispatch(resetCounter(currentCounter));
   };
 
-  useEffect(() => {
-    // Close counter picker when click outside of it
-    const handleClickOutside = (e: MouseEvent) => {
-      const counterPicker = document.getElementById(
-        "counter-picker",
-      ) as HTMLElement;
-      if (isOpen && !counterPicker.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-    window.addEventListener("click", handleClickOutside);
-    return () => {
-      window.removeEventListener("click", handleClickOutside);
-    };
-  }, [isOpen]);
-
+  if (counters.length < 1 || currentCounter === null) return;
   return (
-    counters &&
-    currentCounter !== null && (
-      <div className="flex w-full flex-col items-center justify-evenly">
-        {isOpen && (
-          <div className="absolute left-0 top-0 z-10 h-screen w-screen bg-black bg-opacity-50"></div>
-        )}
-        <section
-          id="counter-picker"
-          className={`${isOpen && "rounded-lg bg-black bg-opacity-20"} absolute left-4 top-4 z-10 flex select-none flex-col items-start justify-start gap-2 p-2 text-left font-medium text-white`}
-        >
-          {counters
-            .filter((_, idx) => idx === currentCounter)
-            .map((counter, idx) => (
-              <h1
-                key={idx}
-                onClick={() => setIsOpen(!isOpen)}
-                className={`${isOpen && counters.length > 1 && "border-b border-white border-opacity-20 pb-2"} flex w-full items-center gap-1.5 font-semibold sm:text-xl`}
-              >
-                {counter.icon && (
-                  <span className="relative inline-flex aspect-square w-8 items-center justify-center rounded-full bg-black bg-opacity-20">
-                    <span className="absolute text-lg sm:text-xl">
-                      {counter.icon}
-                    </span>
-                  </span>
-                )}
-                {counter.name}
-                {isOpen ? (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="inline h-3 w-3"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="m4.5 15.75 7.5-7.5 7.5 7.5"
-                    />
-                  </svg>
-                ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="inline h-3 w-3"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="m19.5 8.25-7.5 7.5-7.5-7.5"
-                    />
-                  </svg>
-                )}
-              </h1>
-            ))}
-          {counters.map((counter, idx) => {
-            if (idx === currentCounter) return null;
-            return (
-              <button
-                key={idx}
-                className={`${isOpen ? "block" : "hidden"} w-full px-1 py-1 text-left text-sm sm:text-base`}
-                onClick={() => {
-                  dispatch(setCurrentCounter(idx));
-                  setIsOpen(false);
-                }}
-              >{`${counter.icon || ""} ${counter.name}: ${counter.value}`}</button>
-            );
-          })}
-
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1, ease: "easeOut" }}
+      className={`${split && "z-50"} relative flex h-full w-full flex-col items-center justify-center`}
+    >
+      <Background currentCounter={currentCounter} split={split} />
+      {/* Flick on reset counter */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={resetAnimationControls}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="absolute inset-0 h-full w-full bg-white"
+      />
+      {/* Main counter container */}
+      <motion.div
+        animate={!showSettings ? "shown" : "hidden"}
+        variants={{
+          shown: windowSize.innerWidth < 768 ? { x: 0, opacity: 1 } : {},
+          hidden: windowSize.innerWidth < 768 ? { x: "-100%", opacity: 0 } : {},
+        }}
+        transition={pageTransition}
+        className="flex h-full w-full flex-col items-center justify-evenly"
+      >
+        {/* {split ? (
+          isSplit && (
+            <button
+              disabled={counters.length < 2}
+              onClick={() => {
+                // if (splitCounter === null) {
+                //   dispatch(setSplitCounter(0));
+                // }
+                dispatch(setIsSplit(false));
+                dispatch(setSplitCounter(null));
+                localStorage.setItem("is_split", "false");
+              }}
+              className="absolute right-16 top-8 z-10 text-2xs uppercase text-white opacity-50 transition-opacity duration-500 ease-out hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-25 disabled:hover:opacity-25"
+            >
+              Close
+            </button>
+          )
+        ) : (
           <button
+            disabled={counters.length < 2 || isSplit}
             onClick={() => {
-              dispatch(
-                addCounter({
-                  name: "New counter",
-                  value: 0,
-                  theme: "indigo",
-                  icon: "🧶",
-                }),
-              );
-              dispatch(setCurrentCounter(counters.length));
-              setIsOpen(false);
+              if (splitCounter === null) {
+                if (currentCounter === 0) {
+                  dispatch(setSplitCounter(1));
+                  localStorage.setItem("split_counter", "1");
+                } else {
+                  dispatch(setSplitCounter(0));
+                  localStorage.setItem("split_counter", "0");
+                }
+                // if (currentCounter === counters.length - 1) dispatch(setSplitCounter(counters.length - 2));
+                // dispatch(setSplitCounter(0));
+              }
+              // if (isSplit) localStorage.setItem("is_split", "false");
+              // else
+              localStorage.setItem("is_split", "true");
+              dispatch(setIsSplit(!isSplit));
             }}
-            className={`${isOpen ? "block" : "hidden"} w-full border-t border-white border-opacity-20 pt-2 text-sm sm:text-base`}
+            className={`${isSplit ? "font-medium opacity-100" : "opacity-50 hover:opacity-100  disabled:opacity-25 disabled:hover:opacity-25"} absolute right-16 top-8 z-10 text-2xs uppercase text-white transition-opacity duration-500 ease-out disabled:cursor-not-allowed`}
           >
-            + Add new
+            Split
           </button>
+        )} */}
+        <button
+          id="open-settings"
+          disabled={showSettings}
+          onClick={() => {
+            setShowSettings(true);
+            // dispatch(setPageState("settings"));
+          }}
+          className="absolute right-2 top-5 z-10 rounded-md p-2 text-white opacity-50 transition-all duration-500 ease-out hover:opacity-100 md:disabled:opacity-0"
+        >
+          <SettingsIcon className="h-6 w-6 text-white" />
+        </button>
+        <AnimatePresence>
+          <CounterPicker id={currentCounter} split={split} />
+        </AnimatePresence>
+        <section className="flex flex-col items-center justify-center short:flex-row">
+          {/* Animate complete / target reached */}
+          <motion.div
+            initial={{ opacity: 0, scale: 1 }}
+            animate={completeAnimationControls}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            className="absolute h-4 w-4 rounded-full bg-white bg-opacity-50"
+          />
+          <motion.button
+            whileTap={{ scale: 1.25 }}
+            transition={{ duration: 0.2 }}
+            className="relative z-10 order-1 flex aspect-square w-fit items-center justify-items-center rounded-full
+      text-6xl opacity-50 transition-opacity duration-500 ease-out hover:opacity-100 active:opacity-100 disabled:opacity-0 disabled:hover:opacity-0 md:focus-visible:opacity-100 short:order-3"
+            disabled={
+              !!counters[currentCounter]?.goal &&
+              counters[currentCounter].value >= counters[currentCounter]?.goal!
+            }
+            onClick={handleIncrease}
+          >
+            <ChevronUpIcon
+              className="h-24 w-24 rounded-full text-white"
+              strokeWidth={2.5}
+            />
+          </motion.button>
+          <motion.p
+            animate={valueAnimationControls}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="order-2 select-none font-mono text-8xl font-black text-white drop-shadow-sm"
+            onDoubleClick={handleDoubleClick}
+          >
+            {counters[currentCounter].value || 0}
+          </motion.p>
+          <motion.button
+            whileTap={{ scale: 1.25 }}
+            transition={{ duration: 0.2 }}
+            className="relative z-10 order-3 flex aspect-square w-fit items-center justify-items-center rounded-full
+      text-6xl opacity-50 transition-opacity duration-500 ease-out hover:opacity-100 active:opacity-100 disabled:opacity-0 hover:disabled:opacity-0 md:focus-visible:opacity-100 short:order-1"
+            onClick={handleDecrease}
+            disabled={counters[currentCounter].value <= 0}
+          >
+            <ChevronDownIcon
+              className="h-24 w-24 rounded-full text-white"
+              strokeWidth={2.5}
+            />
+          </motion.button>
         </section>
-        <Button onClick={handleIncrease}>
-          <SVG>
-            <path d="M18 15l-6-6-6 6" />
-          </SVG>
-        </Button>
-        <p
-          className="select-none font-mono text-9xl font-bold text-white drop-shadow-sm"
-          onDoubleClick={handleDoubleClick}
-        >
-          {counters[currentCounter]?.value || 0}
-        </p>
-        <Button
-          onClick={handleDecrease}
-          disabled={counters[currentCounter]?.value <= 0}
-        >
-          <SVG>
-            <path d="M6 9l6 6 6-6" />
-          </SVG>
-        </Button>
-      </div>
-    )
+        {!!counters[currentCounter]?.goal && (
+          <section
+            // TODO: on click open settings and focus target input field
+            onClick={() => {
+              //   dispatch(setPageState("settings"));
+              //   (
+              //     document.getElementById("target") as HTMLInputElement
+              //   )?.focus();
+              setShowSettings(true);
+              setTimeout(() => {
+                (
+                  document.getElementById("target") as HTMLInputElement
+                )?.focus();
+              }, 300);
+              // targetInputRef.current?.focus();
+            }}
+            className="absolute bottom-4 cursor-pointer select-none text-2xs uppercase text-white opacity-50 transition-opacity duration-500 ease-out hover:opacity-100"
+          >
+            {`Goal: ${counters[currentCounter]?.goal}`}
+          </section>
+        )}
+      </motion.div>
+      <Settings
+        currentCounter={currentCounter}
+        isOpen={showSettings}
+        setIsOpen={setShowSettings}
+      />
+    </motion.div>
   );
 }
-
-const Button = ({ ...props }) => (
-  <div className="relative">
-    <motion.button
-      whileTap={{ scale: 1.25 }}
-      transition={{ duration: 0.2 }}
-      className="group flex aspect-square w-fit items-center justify-items-center rounded-full p-8 text-6xl
-      opacity-50 active:opacity-100 disabled:opacity-0 hover:disabled:opacity-0 lg:hover:opacity-100 lg:focus-visible:opacity-100"
-      {...props}
-    >
-      {props.children}
-    </motion.button>
-  </div>
-);
-
-const SVG = ({ children }: { children: React.ReactNode }) => (
-  <svg
-    fill="none"
-    shapeRendering="geometricPrecision"
-    stroke="currentColor"
-    strokeWidth="2.5"
-    viewBox="0 0 24 24"
-    height="80"
-    width="80"
-    className="h-24 w-24 rounded-full text-white group-active:opacity-75 group-disabled:text-transparent lg:group-hover:opacity-75 lg:group-focus-visible:opacity-75"
-  >
-    {children}
-  </svg>
-);

@@ -2,7 +2,8 @@ import Background from "./Background";
 import Counter from "./Counter";
 import StoreProvider from "./StoreProvider";
 import Settings from "./Settings";
-import LocalStorage from "./LocalStorage";
+import Counters from "./Counters";
+// import LocalStorage from "./LocalStorage";
 // import { supabase } from "@/lib/supabase";
 // import { cookies } from "next/headers";
 
@@ -14,13 +15,14 @@ export default function Home() {
   //   .eq("user_id", userId?.value);
   // console.log(data.data);
   return (
-    <main className="mx-auto flex h-screen w-screen max-w-md flex-col items-center justify-center font-sans">
+    <main className="flex h-full w-full flex-col items-center justify-center">
       <StoreProvider>
-        <LocalStorage />
-        <Background />
-        {/* <Navigation /> */}
-        <Settings />
-        <Counter />
+        {/* <LocalStorage /> */}
+        {/* <Background /> */}
+        <Counters />
+        {/* <Counter />
+        <Counter /> */}
+        {/* <Settings /> */}
       </StoreProvider>
     </main>
   );

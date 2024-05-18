@@ -14,9 +14,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="overflow-hidden">
       <body
-        className={`${GeistSans.variable} ${GeistMono.variable} h-screen w-screen overflow-hidden font-sans`}
+        className={`${GeistSans.variable} ${GeistMono.variable} relative h-screen w-screen overflow-hidden bg-black font-sans`}
       >
         {children}
       </body>

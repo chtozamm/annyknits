@@ -1,368 +1,445 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { RefObject, useEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import {
-  selectTheme,
-  setThemeState,
-} from "@/lib/redux/features/theme/themeSlice";
-import {
-  addCounter,
   deleteCounter,
+  resetGoal,
+  resetLabel,
+  resetValue,
   selectCounters,
   selectCurrentCounter,
-  updateCounter,
+  selectSplitCounter,
+  setSplitCounter,
+  updateGoal,
+  updateIcon,
+  updateLabel,
+  updateTheme,
+  updateValue,
 } from "@/lib/redux/features/counters/countersSlice";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  selectCurrentPage,
+  setPageState,
+} from "@/lib/redux/features/page/pageSlice";
+import { pageTransition } from "./animations";
+import { ArrowLeftIcon, ArrowRightIcon, XIcon } from "./icons";
+import { colors, icons } from "./data";
+import {
+  selectIsSplit,
+  setIsSplit,
+} from "@/lib/redux/features/split/splitSlice";
 
-const colors = [
-  "red",
-  "rose",
-  "orange",
-  "green",
-  "mint",
-  "sky",
-  "cyan",
-  "lavender",
-  "indigo",
-];
-const icons = [
-  "🧶",
-  "🧣",
-  "👚",
-  "🤍",
-  "🍰",
-  "🍵",
-  "✨",
-  "❄️",
-  "🦊",
-  "🐺",
-  "🦉",
-  "🐈",
-  "🌲",
-  "🌊",
-  "⚡",
-  "🚗",
-  "🍇",
-  "🍊",
-  "🍒",
-  "🍓",
-  "🌸",
-  "📖",
-];
+type SettingsProps = {
+  currentCounter: number;
+  isOpen: boolean;
+  setIsOpen: (state: boolean) => void;
+};
 
-export default function Settings() {
+export default function Settings({
+  currentCounter,
+  isOpen,
+  setIsOpen,
+}: SettingsProps) {
   const dispatch = useAppDispatch();
-  const theme = useAppSelector(selectTheme);
-  const currentCounter = useAppSelector(selectCurrentCounter);
+  // const currentCounter = useAppSelector(selectCurrentCounter);
   const counters = useAppSelector(selectCounters);
-  const [isOpen, setIsOpen] = useState(false);
+  // const currentPage = useAppSelector(selectCurrentPage);
   const [showDialog, setShowDialog] = useState(false);
+  const labelInputRef = useRef<HTMLInputElement>(null);
+  const valueInputRef = useRef<HTMLInputElement>(null);
+  const targetInputRef = useRef<HTMLInputElement>(null);
+  const settingsRef = useRef<HTMLDivElement>(null);
+  const splitCounter = useAppSelector(selectSplitCounter);
+  const isSplit = useAppSelector(selectIsSplit);
 
-  useEffect(() => {
-    theme &&
-      dispatch(
-        updateCounter({
-          counter: { ...counters[currentCounter!], theme: theme },
-          id: currentCounter!,
-        }),
-      );
-  }, [theme]);
+  // useEffect(() => {
+  //   currentPage === "counter" && setShowDialog(false);
+  // }, [currentPage]);
+
+  // TODO: close settings when click outside of its container
+  // useEffect(() => {
+  //   // Close settings when click outside of its container
+  //   const handleClickOutside = (e: MouseEvent) => {
+  //     const settingsContainer = settingsRef.current;
+  //     if (
+  //       settingsContainer &&
+  //       isOpen &&
+  //       !settingsContainer.contains(e.target as Node)
+  //     ) {
+  //       setIsOpen(false);
+  //     }
+  //   };
+  //   window.addEventListener("click", handleClickOutside);
+  //   return () => {
+  //     window.removeEventListener("click", handleClickOutside);
+  //   };
+  // }, [isOpen]);
+
+  if (currentCounter === null) return;
   return (
     <>
-      <footer
-        className={`${showDialog && "hidden"} absolute bottom-8 left-0 z-30 w-full px-4 sm:left-auto sm:mx-auto sm:max-w-md`}
-      >
-        <div
-          className={`flex w-full items-center justify-evenly rounded-xl bg-opacity-10 ${isOpen ? "bg-white" : "bg-black"} font-mono text-white`}
-        >
-          <button
-            className={`${isOpen ? "opacity-50" : "opacity-100"} px-4 py-2`}
-            onClick={() => {
-              setShowDialog(false);
-              setIsOpen(false);
-            }}
-          >
-            123
-          </button>
-          <span className="h-4 border-r border-white opacity-20" />
-          <button
-            onClick={() => {
-              setShowDialog(false);
-              setIsOpen(!isOpen);
-            }}
-            className={`${isOpen ? "opacity-100" : "opacity-50"} px-4 py-2`}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="h-6 w-6 text-white"
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={pageTransition}
+              className={`absolute inset-0 z-50 h-full w-full bg-black bg-opacity-45 md:max-w-full`}
+            />
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={pageTransition}
+              // id="settings"
+              ref={settingsRef}
+              // pt-20
+              className={`absolute z-50 flex h-full w-full flex-col items-center overflow-y-auto bg-black bg-opacity-95 p-8 text-white sm:pb-8 md:right-0 md:max-w-md short:px-10`}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M4.5 12a7.5 7.5 0 0 0 15 0m-15 0a7.5 7.5 0 1 1 15 0m-15 0H3m16.5 0H21m-1.5 0H12m-8.457 3.077 1.41-.513m14.095-5.13 1.41-.513M5.106 17.785l1.15-.964m11.49-9.642 1.149-.964M7.501 19.795l.75-1.3m7.5-12.99.75-1.3m-6.063 16.658.26-1.477m2.605-14.772.26-1.477m0 17.726-.26-1.477M10.698 4.614l-.26-1.477M16.5 19.794l-.75-1.299M7.5 4.205 12 12m6.894 5.785-1.149-.964M6.256 7.178l-1.15-.964m15.352 8.864-1.41-.513M4.954 9.435l-1.41-.514M12.002 12l-3.75 6.495"
-              />
-            </svg>
-          </button>
-          {isOpen && (
-            <>
-              <span className="h-4 border-r border-white opacity-20" />
-              <button
-                onClick={() => setShowDialog(true)}
-                className={`${isOpen ? "opacity-100" : "opacity-50"} px-4 py-2`}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="h-5 w-5 text-red-700"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
-                  />
-                </svg>
-              </button>
-            </>
-          )}
-        </div>
-      </footer>
-      {isOpen && (
-        <div className="absolute z-20 flex h-screen w-screen flex-col items-center overflow-y-scroll bg-black bg-opacity-95 p-8 pb-24 text-white">
-          <div className="mx-auto flex w-full flex-col gap-8 sm:max-w-md">
-            <label className="select-none text-center text-xs font-semibold uppercase">
-              Customization
-            </label>
-            <section className="relative flex flex-col gap-2">
-              <label
-                htmlFor="label"
-                className="select-none text-2xs font-semibold uppercase"
-              >
-                Label
-              </label>
-              <input
-                type="text"
-                name="label"
-                id="label"
-                placeholder="Name of the counter"
-                value={counters[currentCounter!]?.name}
-                onChange={(e) =>
-                  dispatch(
-                    updateCounter({
-                      counter: {
-                        ...counters[currentCounter!],
-                        name: e.target.value,
-                      },
-                      id: currentCounter!,
-                    }),
-                  )
-                }
-                className="rounded-md bg-white bg-opacity-10 px-2.5 py-1 outline-none placeholder:text-sm placeholder:text-white placeholder:text-opacity-50 focus-within:bg-opacity-20"
-              />
-              {counters[currentCounter!]?.name && (
-                <button
-                  onClick={() =>
-                    dispatch(
-                      updateCounter({
-                        counter: {
-                          ...counters[currentCounter!],
-                          name: "",
-                        },
-                        id: currentCounter!,
-                      }),
-                    )
-                  }
-                  className="absolute bottom-0 right-0 p-2 opacity-50"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="h-4 w-4"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
-              )}
-            </section>
-            <section className="relative flex flex-col gap-2">
-              <label
-                htmlFor="value"
-                className="select-none text-2xs font-semibold uppercase"
-              >
-                Value
-              </label>
-              <input
-                type="text"
-                name="value"
-                id="value"
-                value={counters[currentCounter!]?.value}
-                onChange={(e) =>
-                  dispatch(
-                    updateCounter({
-                      counter: {
-                        ...counters[currentCounter!],
-                        value: +e.target.value > 0 ? +e.target.value : 0,
-                      },
-                      id: currentCounter!,
-                    }),
-                  )
-                }
-                className="rounded-md bg-white bg-opacity-10 px-2.5 py-1 outline-none focus-within:bg-opacity-20"
-              />
-              {counters[currentCounter!]?.value > 0 && (
-                <button
-                  onClick={() =>
-                    dispatch(
-                      updateCounter({
-                        counter: {
-                          ...counters[currentCounter!],
-                          value: 0,
-                        },
-                        id: currentCounter!,
-                      }),
-                    )
-                  }
-                  className="absolute bottom-0 right-0 p-2 opacity-50"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="h-4 w-4"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
-              )}
-            </section>
-            <section className="flex flex-col gap-4">
-              <label className="select-none text-2xs font-semibold uppercase">
-                Theme color
-              </label>
-              <ul className="flex select-none flex-wrap gap-2">
-                {colors.map((color) => (
+              <div className="mx-auto flex w-full max-w-md flex-col gap-8">
+                {/* <CounterPicker /> */}
+                <div className="relative flex w-full items-center justify-center">
+                  <p className="relative select-none text-center text-xs font-semibold uppercase">
+                    Customization
+                  </p>
                   <button
-                    key={color}
-                    onClick={() => {
-                      dispatch(setThemeState(color));
-                    }}
-                    className={`h-6 w-6 rounded-full border-2 border-white ${theme === color ? "opacity-100" : "opacity-50"} bg-${color}-primary`}
-                  />
-                ))}
-              </ul>
-            </section>
-            <section className="flex flex-col gap-4">
-              <label className="select-none text-2xs font-semibold uppercase">
-                Icon
-              </label>
-              <ul className="flex select-none flex-wrap gap-4">
-                {icons.map((icon) => (
+                    // onClick={() => dispatch(setPageState("counter"))}
+                    onClick={() => setIsOpen(false)}
+                    className="absolute -left-2 p-2 opacity-50 transition-all duration-500 ease-out hover:opacity-100 md:hidden"
+                  >
+                    <ArrowLeftIcon className="h-4 w-4" />
+                  </button>
                   <button
-                    key={icon}
-                    onClick={() => {
+                    // onClick={() => dispatch(setPageState("counter"))}
+                    onClick={() => setIsOpen(false)}
+                    className="absolute -left-2 hidden p-2 opacity-50 transition-all duration-500 ease-out hover:opacity-100 md:block"
+                  >
+                    <ArrowRightIcon className="h-4 w-4" />
+                  </button>
+                </div>
+                <section className="relative">
+                  <label
+                    htmlFor="label"
+                    className="block select-none pb-2 text-3xs font-semibold uppercase"
+                  >
+                    Label
+                  </label>
+                  <input
+                    ref={labelInputRef}
+                    type="text"
+                    name="label"
+                    id="label"
+                    placeholder="Name of the counter"
+                    value={counters[currentCounter]?.name}
+                    onChange={(e) => {
                       dispatch(
-                        updateCounter({
-                          counter: { ...counters[currentCounter!], icon: icon },
-                          id: currentCounter!,
+                        updateLabel({
+                          id: currentCounter,
+                          value: e.target.value,
                         }),
                       );
                     }}
-                    className={`h-6 w-6 text-2xl ${counters[currentCounter!].icon === icon ? "opacity-100" : "opacity-50"}`}
-                  >
-                    {icon}
-                  </button>
-                ))}
-              </ul>
-            </section>
-            {/* <section>
-              <label htmlFor="input-icon">Or type an emoji</label>
-              <input
-                type="text"
-                name="icon"
-                id="input-icon"
-                // TODO: verify that input is emoji
-                onChange={(e) => {
-                  dispatch(
-                    updateCounter({
-                      counter: {
-                        ...counters[currentCounter!],
-                        icon: e.target.value,
-                      },
-                      id: currentCounter!,
-                    }),
-                  );
-                }}
-                className="rounded-md bg-white bg-opacity-10 px-2.5 py-1 outline-none focus-within:bg-opacity-20"
-              />
-            </section> */}
-            <section className="flex flex-col gap-4">
-              {/* <button
-                className="mx-auto mt-8 w-fit select-none px-2 py-1.5 text-xs uppercase"
-                onClick={() => setIsOpen(false)}
-              >
-                Apply
-              </button> */}
-              {/* <button
-                className="mx-auto w-fit select-none px-2 py-1.5 text-xs uppercase text-red-700"
-                onClick={() => setShowDialog(true)}
-              >
-                Delete counter
-              </button> */}
-              {showDialog && (
-                <div className="absolute left-0 top-0 z-30 flex h-screen w-screen flex-col items-center justify-center gap-8 bg-black px-4 text-center">
-                  <label className="select-none">
-                    Are you sure you want to delete the counter?
-                  </label>
-                  <div className="flex gap-8">
+                    className="w-full rounded-md bg-white bg-opacity-10 px-2.5 py-1 outline-none transition-all duration-500 ease-out placeholder:text-sm placeholder:text-white placeholder:text-opacity-50 focus-within:bg-opacity-20 hover:bg-opacity-20"
+                  />
+                  {counters[currentCounter]?.name && (
                     <button
                       onClick={() => {
-                        if (counters.length === 1) {
-                          dispatch(
-                            addCounter({
-                              name: "New counter",
-                              value: 0,
-                              theme: "indigo",
-                              icon: "🧶",
-                            }),
-                          );
-                          dispatch(setThemeState("indigo"));
-                        }
-                        dispatch(deleteCounter(currentCounter!));
-                        setShowDialog(false);
-                        setIsOpen(false);
+                        dispatch(resetLabel(currentCounter));
+                        labelInputRef.current?.focus();
                       }}
-                      className="select-none text-xs font-semibold uppercase text-red-700"
+                      className="absolute bottom-0 right-0 p-2 opacity-50 transition-opacity duration-500 ease-out hover:opacity-100"
                     >
-                      Delete
+                      <XIcon className="h-4 w-4" />
                     </button>
+                  )}
+                </section>
+                <section className="relative">
+                  <label
+                    htmlFor="value"
+                    className="block select-none pb-2 text-3xs font-semibold uppercase"
+                  >
+                    Value
+                  </label>
+                  <input
+                    ref={valueInputRef}
+                    type="text"
+                    name="value"
+                    id="value"
+                    placeholder="0"
+                    value={
+                      counters[currentCounter]?.value === 0
+                        ? ""
+                        : counters[currentCounter]?.value
+                    }
+                    onChange={(e) => {
+                      if (
+                        !e.target.value.match(/^\d+$/) &&
+                        e.target.value !== ""
+                      )
+                        return;
+                      dispatch(
+                        updateValue({
+                          id: currentCounter,
+                          value: +e.target.value > 0 ? +e.target.value : 0,
+                        }),
+                      );
+                    }}
+                    className="w-full rounded-md bg-white bg-opacity-10 px-2.5 py-1 outline-none transition-all duration-500 ease-out placeholder:text-white focus-within:bg-opacity-20 hover:bg-opacity-20 focus-visible:placeholder:text-opacity-50"
+                  />
+                  {counters[currentCounter]?.value > 0 && (
                     <button
-                      onClick={() => setShowDialog(false)}
-                      className="select-none text-xs uppercase"
+                      onClick={() => {
+                        dispatch(resetValue(currentCounter));
+                        if (valueInputRef.current) {
+                          valueInputRef.current.value = "";
+                          valueInputRef.current.focus();
+                        }
+                      }}
+                      className="absolute bottom-0 right-0 p-2 opacity-50 transition-opacity duration-500 ease-out hover:opacity-100"
                     >
-                      Cancel
+                      <XIcon className="h-4 w-4" />
+                    </button>
+                  )}
+                </section>
+                <section className="relative">
+                  <label
+                    htmlFor="target"
+                    className="flex select-none items-center gap-1.5 pb-2 text-3xs font-semibold uppercase"
+                  >
+                    Target
+                    <span className="font-normal opacity-50">(Optional)</span>
+                  </label>
+                  <input
+                    ref={targetInputRef}
+                    type="text"
+                    name="target"
+                    id="target"
+                    placeholder="Goal to reach"
+                    value={
+                      counters[currentCounter].goal !== null &&
+                      counters[currentCounter].goal! > 0
+                        ? counters[currentCounter].goal!
+                        : ""
+                    }
+                    onChange={(e) => {
+                      if (
+                        !e.target.value.match(/^\d+$/) &&
+                        e.target.value !== ""
+                      )
+                        return;
+                      dispatch(
+                        updateGoal({
+                          id: currentCounter,
+                          value: +e.target.value > 0 ? +e.target.value : null,
+                        }),
+                      );
+                    }}
+                    className="w-full rounded-md bg-white bg-opacity-10 px-2.5 py-1 outline-none transition-all duration-500 ease-out placeholder:text-sm placeholder:text-white placeholder:text-opacity-50 focus-within:bg-opacity-20 hover:bg-opacity-20"
+                  />
+                  {!!counters[currentCounter]?.goal &&
+                    counters[currentCounter]?.goal! > 0 && (
+                      <button
+                        onClick={() => {
+                          dispatch(resetGoal(currentCounter));
+                          if (targetInputRef.current) {
+                            targetInputRef.current.value = "";
+                            targetInputRef.current.focus();
+                          }
+                        }}
+                        className="absolute bottom-0 right-0 p-2 opacity-50 transition-opacity duration-500 ease-out hover:opacity-100"
+                      >
+                        <XIcon className="h-4 w-4" />
+                      </button>
+                    )}
+                </section>
+                <section className="flex flex-col gap-4">
+                  <div className="flex items-center gap-1.5">
+                    <label className="select-none text-3xs font-semibold uppercase">
+                      Theme color
+                    </label>
+                    <button
+                      onClick={() => {
+                        let color = counters[currentCounter].theme;
+                        while (color === counters[currentCounter].theme) {
+                          color =
+                            colors[Math.floor(Math.random() * colors.length)];
+                        }
+                        dispatch(
+                          updateTheme({
+                            id: currentCounter,
+                            value: color,
+                          }),
+                        );
+                      }}
+                      className="text-3xs font-normal uppercase opacity-50"
+                    >
+                      {/* <ShuffleIcon className="h-4 w-4" /> */}
+                      Select Random
                     </button>
                   </div>
-                </div>
-              )}
-            </section>
-          </div>
-        </div>
-      )}
+                  <ul className="flex select-none flex-wrap gap-2">
+                    {colors.map((color) => (
+                      <li
+                        key={color}
+                        className="relative flex items-center justify-center"
+                      >
+                        <motion.div
+                          animate={
+                            counters[currentCounter]?.theme === color
+                              ? "selected"
+                              : "normal"
+                          }
+                          variants={{
+                            selected: {
+                              opacity: 1,
+                            },
+                            normal: {
+                              opacity: 0,
+                            },
+                          }}
+                          className="absolute h-8 w-8 rounded-full bg-white bg-opacity-10"
+                        />
+                        <button
+                          onClick={() => {
+                            dispatch(
+                              updateTheme({
+                                id: currentCounter,
+                                value: color,
+                              }),
+                            );
+                          }}
+                          className={`relative z-10 h-6 w-6 rounded-full transition-opacity duration-500 ease-out bg-${color}-primary hover:opacity-100 ${counters[currentCounter]?.theme === color ? "opacity-100" : "opacity-50"}`}
+                        ></button>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+                <section className="flex flex-col gap-4">
+                  <div className="flex items-center gap-1.5">
+                    <label className="select-none text-3xs font-semibold uppercase">
+                      Icon
+                    </label>
+                    <button
+                      onClick={() => {
+                        let icon = counters[currentCounter].icon;
+                        while (icon === counters[currentCounter].icon) {
+                          icon =
+                            icons[Math.floor(Math.random() * icons.length)];
+                        }
+                        dispatch(
+                          updateIcon({
+                            id: currentCounter,
+                            value: icon,
+                          }),
+                        );
+                      }}
+                      className="text-3xs font-normal uppercase opacity-50"
+                    >
+                      {/* <ShuffleIcon className="h-4 w-4" /> */}
+                      Select Random
+                    </button>
+                  </div>
+                  <ul className="flex select-none flex-wrap gap-2">
+                    {icons.map((icon) => (
+                      <li
+                        key={icon}
+                        className="relative flex items-center justify-center"
+                      >
+                        <motion.div
+                          animate={
+                            counters[currentCounter]?.icon === icon
+                              ? "selected"
+                              : "normal"
+                          }
+                          variants={{
+                            selected: {
+                              opacity: 1,
+                            },
+                            normal: {
+                              opacity: 0,
+                            },
+                          }}
+                          className="absolute h-10 w-10 rounded-full bg-white bg-opacity-5"
+                        />
+                        <button
+                          onClick={() => {
+                            dispatch(
+                              updateIcon({
+                                id: currentCounter,
+                                value: icon,
+                              }),
+                            );
+                          }}
+                          className={`relative z-10 rounded-full text-2xl transition-opacity duration-500 ease-out hover:opacity-100 ${counters[currentCounter]?.icon === icon ? "opacity-100" : "opacity-50"}`}
+                        >
+                          {icon}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+                <button
+                  onClick={() => setShowDialog(true)}
+                  disabled={counters.length < 2}
+                  className="mx-auto w-fit p-2 text-2xs uppercase text-red-700 transition-colors duration-500 ease-out hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Delete counter
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+      <section className="relative flex flex-col gap-4 text-white">
+        <AnimatePresence>
+          {showDialog && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{
+                type: "tween",
+                ease: "easeInOut",
+                duration: 0.3,
+              }}
+              className="fixed right-0 top-0 z-50 flex h-full w-full flex-col items-center justify-center gap-8 bg-black px-4 text-center md:max-w-md"
+            >
+              <label className="select-none">
+                Are you sure you want to delete the counter?
+              </label>
+              <div className="flex gap-8">
+                <button
+                  onClick={() => {
+                    if (counters.length === 2 && isSplit) {
+                      dispatch(setIsSplit(false));
+                      dispatch(setSplitCounter(null));
+                    }
+                    if (currentCounter === splitCounter) {
+                      dispatch(setIsSplit(false));
+                      dispatch(setSplitCounter(null));
+                    }
+                    dispatch(deleteCounter(currentCounter));
+                    setShowDialog(false);
+                    setIsOpen(false);
+                  }}
+                  className="select-none text-xs font-semibold uppercase text-red-700 transition-opacity duration-500 ease-out hover:opacity-75"
+                >
+                  Delete
+                </button>
+                <button
+                  onClick={() => setShowDialog(false)}
+                  className="select-none text-xs uppercase transition-opacity duration-500 ease-out hover:opacity-75"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </section>
     </>
   );
 }

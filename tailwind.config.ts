@@ -8,26 +8,27 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      screens: {
+        short: { raw: "(max-height: 600px)" },
+      },
       colors: {
-        red: {
-          primary: "#f87171",
-          secondary: "#ff9a9b",
-          interactive: "#fedfdf",
+        pink: {
+          primary: "#F266AB",
         },
         orange: {
-          primary: "#fb923c",
+          primary: "#DC6B19",
         },
         mint: {
-          primary: "#34d399",
+          primary: "#0d9488",
         },
         sky: {
-          primary: "#38bdf8",
+          primary: "#5AB2FF",
         },
         lavender: {
           primary: "#8b5cf6",
         },
         rose: {
-          primary: "#f43f5e",
+          primary: "#DD4A48",
         },
         indigo: {
           primary: "#3730a3",
@@ -38,6 +39,17 @@ const config: Config = {
         green: {
           primary: "#15803d",
         },
+        olive: {
+          primary: "#627254",
+        },
+        grape: {
+          primary: "#5F5D9C",
+        },
+        beige: { primary: "#B68973" },
+        winterNight: { primary: "#0B2447" },
+        cherry: { primary: "#7B113A" },
+        teal: { primary: "#89BEB3" },
+        plum: { primary: "#625261" },
       },
       fontFamily: {
         sans: ["var(--font-geist-sans)"],
@@ -53,7 +65,7 @@ const config: Config = {
     },
   },
   safelist: [
-    "bg-red-primary",
+    "bg-pink-primary",
     "bg-orange-primary",
     "bg-mint-primary",
     "bg-sky-primary",
@@ -62,7 +74,15 @@ const config: Config = {
     "bg-indigo-primary",
     "bg-cyan-primary",
     "bg-green-primary",
-    // "accent-red-primary",
+    "bg-olive-primary",
+    "bg-grape-primary",
+    "bg-winterNight-primary",
+    "bg-beige-primary",
+    "bg-cherry-primary",
+    "bg-teal-primary",
+    "bg-plum-primary",
+
+    // "accent-pink-primary",
     // "accent-orange-primary",
     // "accent-mint-primary",
     // "accent-sky-primary",

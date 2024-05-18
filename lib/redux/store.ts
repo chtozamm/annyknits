@@ -1,14 +1,18 @@
 import { configureStore } from "@reduxjs/toolkit";
-import themeReducer from "./features/theme/themeSlice";
+// import themeReducer from "./features/theme/themeSlice";
 import settingsReducer from "./features/settings/settingsSlice";
 import countersReducer from "./features/counters/countersSlice";
+import pageReducer from "./features/page/pageSlice";
+import splitReducer from "./features/split/splitSlice";
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
-      theme: themeReducer,
+      // theme: themeReducer,
       settings: settingsReducer,
       counters: countersReducer,
+      page: pageReducer,
+      split: splitReducer,
     },
   });
 };
