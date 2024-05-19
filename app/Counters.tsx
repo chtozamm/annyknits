@@ -48,12 +48,12 @@ export default function Counters() {
       dispatch(
         setCurrentCounter(Number(localStorage.getItem("current_counter")) || 0),
       );
-      // dispatch(
-      //   setSplitCounter(Number(localStorage.getItem("split_counter")) || 0),
-      // );
-      // dispatch(
-      //   setIsSplit(localStorage.getItem("is_split") === "true" ? true : false),
-      // );
+      dispatch(
+        setSplitCounter(Number(localStorage.getItem("split_counter")) || 0),
+      );
+      dispatch(
+        setIsSplit(localStorage.getItem("is_split") === "true" ? true : false),
+      );
       // dispatch(
       //   setSplitCounter(Number(localStorage.getItem("second_counter")) || 0),
       // );
@@ -69,28 +69,26 @@ export default function Counters() {
     if (currentCounter !== null) {
       localStorage.setItem("current_counter", currentCounter.toString());
     }
-    // if (splitCounter !== null) {
-    //   localStorage.setItem("split_counter", splitCounter.toString());
-    // }
-    // [currentCounter, splitCounter]
-  }, [currentCounter]);
+    if (splitCounter !== null) {
+      localStorage.setItem("split_counter", splitCounter.toString());
+    }
+  }, [currentCounter, splitCounter]);
 
   if (currentCounter === null) return;
   return (
     <>
-      {/* <button
+      <button
         disabled={counters.length < 2}
         onClick={() => {
           if (splitCounter === null) {
             dispatch(setSplitCounter(0));
           }
-          // setIsSplit(!isSplit);
           dispatch(setIsSplit(true));
         }}
         className="absolute right-16 top-8 z-10 text-2xs uppercase text-white opacity-50 transition-opacity duration-500 ease-out hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-25 disabled:hover:opacity-25"
       >
         Split
-      </button> */}
+      </button>
       <div className="flex h-full w-full flex-col md:flex-row">
         <Counter currentCounter={currentCounter} />
         {splitCounter !== null && isSplit && (

@@ -382,64 +382,67 @@ export default function Settings({
                   </ul>
                 </section>
                 <button
-                  onClick={() => setShowDialog(true)}
+                  onClick={() => {
+                    setShowDialog(true);
+                    settingsRef.current!.scrollTo({ top: 0 });
+                  }}
                   disabled={counters.length < 2}
                   className="mx-auto w-fit p-2 text-2xs uppercase text-red-700 transition-colors duration-500 ease-out hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Delete counter
                 </button>
               </div>
+              <section className="relative flex flex-col gap-4 text-white">
+                <AnimatePresence>
+                  {showDialog && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{
+                        type: "tween",
+                        ease: "easeInOut",
+                        duration: 0.3,
+                      }}
+                      className="fixed right-0 top-0 z-50 flex h-full w-full flex-col items-center justify-center gap-8 bg-black px-4 text-center md:max-w-md"
+                    >
+                      <label className="select-none">
+                        Are you sure you want to delete the counter?
+                      </label>
+                      <div className="flex gap-8">
+                        <button
+                          onClick={() => {
+                            if (counters.length === 2 && isSplit) {
+                              dispatch(setIsSplit(false));
+                              dispatch(setSplitCounter(null));
+                            }
+                            if (currentCounter === splitCounter) {
+                              dispatch(setIsSplit(false));
+                              dispatch(setSplitCounter(null));
+                            }
+                            dispatch(deleteCounter(currentCounter));
+                            setShowDialog(false);
+                            setIsOpen(false);
+                          }}
+                          className="select-none text-xs font-semibold uppercase text-red-700 transition-opacity duration-500 ease-out hover:opacity-75"
+                        >
+                          Delete
+                        </button>
+                        <button
+                          onClick={() => setShowDialog(false)}
+                          className="select-none text-xs uppercase transition-opacity duration-500 ease-out hover:opacity-75"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </section>
             </motion.div>
           </>
         )}
       </AnimatePresence>
-      <section className="relative flex flex-col gap-4 text-white">
-        <AnimatePresence>
-          {showDialog && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{
-                type: "tween",
-                ease: "easeInOut",
-                duration: 0.3,
-              }}
-              className="fixed right-0 top-0 z-50 flex h-full w-full flex-col items-center justify-center gap-8 bg-black px-4 text-center md:max-w-md"
-            >
-              <label className="select-none">
-                Are you sure you want to delete the counter?
-              </label>
-              <div className="flex gap-8">
-                <button
-                  onClick={() => {
-                    if (counters.length === 2 && isSplit) {
-                      dispatch(setIsSplit(false));
-                      dispatch(setSplitCounter(null));
-                    }
-                    if (currentCounter === splitCounter) {
-                      dispatch(setIsSplit(false));
-                      dispatch(setSplitCounter(null));
-                    }
-                    dispatch(deleteCounter(currentCounter));
-                    setShowDialog(false);
-                    setIsOpen(false);
-                  }}
-                  className="select-none text-xs font-semibold uppercase text-red-700 transition-opacity duration-500 ease-out hover:opacity-75"
-                >
-                  Delete
-                </button>
-                <button
-                  onClick={() => setShowDialog(false)}
-                  className="select-none text-xs uppercase transition-opacity duration-500 ease-out hover:opacity-75"
-                >
-                  Cancel
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </section>
     </>
   );
 }

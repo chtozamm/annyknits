@@ -134,7 +134,7 @@ export default function Counter({ currentCounter, split }: CounterProps) {
         transition={pageTransition}
         className="flex h-full w-full flex-col items-center justify-evenly"
       >
-        {/* {split ? (
+        {split ? (
           isSplit && (
             <button
               disabled={counters.length < 2}
@@ -175,7 +175,7 @@ export default function Counter({ currentCounter, split }: CounterProps) {
           >
             Split
           </button>
-        )} */}
+        )}
         <button
           id="open-settings"
           disabled={showSettings}
