@@ -10,7 +10,9 @@ import {
   selectCounters,
   selectCurrentCounter,
   selectSplitCounter,
+  selectSplitSupport,
   setSplitCounter,
+  setSplitSupport,
   updateGoal,
   updateIcon,
   updateLabel,
@@ -52,6 +54,7 @@ export default function Settings({
   const settingsRef = useRef<HTMLDivElement>(null);
   const splitCounter = useAppSelector(selectSplitCounter);
   const isSplit = useAppSelector(selectIsSplit);
+  const splitEnabled = useAppSelector(selectSplitSupport);
 
   // useEffect(() => {
   //   currentPage === "counter" && setShowDialog(false);
@@ -380,6 +383,56 @@ export default function Settings({
                       </li>
                     ))}
                   </ul>
+                </section>
+                <section className="flex select-none flex-col gap-4">
+                  <div className="flex items-center gap-1.5">
+                    <label className="select-none text-3xs font-semibold uppercase">
+                      Split feature
+                    </label>
+                    <span className="text-3xs font-normal uppercase opacity-50">
+                      (Experimental)
+                    </span>
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="split-on"
+                      className="inline-flex items-center gap-0.5 text-3xs font-normal uppercase"
+                    >
+                      <input
+                        type="radio"
+                        name="split-feautre"
+                        id="split-on"
+                        value="on"
+                        checked={splitEnabled === true}
+                        className="accent-black"
+                        onChange={(e) =>
+                          e.target.value === "on"
+                            ? dispatch(setSplitSupport(true))
+                            : dispatch(setSplitSupport(false))
+                        }
+                      />
+                      On
+                    </label>
+                    <label
+                      htmlFor="split-off"
+                      className="ml-2 inline-flex items-center gap-0.5 text-3xs font-normal uppercase"
+                    >
+                      <input
+                        type="radio"
+                        name="split-feautre"
+                        id="split-off"
+                        value="off"
+                        checked={splitEnabled === false}
+                        className="accent-black"
+                        onChange={(e) =>
+                          e.target.value === "on"
+                            ? dispatch(setSplitSupport(true))
+                            : dispatch(setSplitSupport(false))
+                        }
+                      />
+                      Off
+                    </label>
+                  </div>
                 </section>
                 <button
                   onClick={() => {

@@ -14,6 +14,7 @@ interface CounterState {
   counters: Counter[];
   current: number | null;
   split: number | null;
+  splitSupport: boolean | null;
   // current: number;
 }
 
@@ -22,6 +23,7 @@ const initialState: CounterState = {
   counters: [],
   current: null,
   split: null,
+  splitSupport: null,
   // current: 0,
 };
 
@@ -37,6 +39,9 @@ export const countersSlice = createSlice({
       action: PayloadAction<Counter[]>,
     ) => {
       state.counters = action.payload;
+    },
+    setSplitSupport: (state, action: PayloadAction<boolean>) => {
+      state.splitSupport = action.payload;
     },
     setCurrentCounter: (state, action: PayloadAction<number>) => {
       state.current = action.payload;
@@ -112,6 +117,7 @@ export const countersSlice = createSlice({
 
 export const {
   setCounterState,
+  setSplitSupport,
   setCurrentCounter,
   setSplitCounter,
   addCounter,
@@ -135,5 +141,7 @@ export const selectCounters = (state: RootState) => state.counters.counters;
 export const selectCurrentCounter = (state: RootState) =>
   state.counters.current;
 export const selectSplitCounter = (state: RootState) => state.counters.split;
+export const selectSplitSupport = (state: RootState) =>
+  state.counters.splitSupport;
 
 export default countersSlice.reducer;

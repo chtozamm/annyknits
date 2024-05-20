@@ -6,9 +6,11 @@ import {
   selectCounters,
   selectCurrentCounter,
   selectSplitCounter,
+  selectSplitSupport,
   setCounterState,
   setCurrentCounter,
   setSplitCounter,
+  setSplitSupport,
 } from "@/lib/redux/features/counters/countersSlice";
 import { useEffect, useState } from "react";
 import {
@@ -22,6 +24,7 @@ export default function Counters() {
   const counters = useAppSelector(selectCounters);
   const currentCounter = useAppSelector(selectCurrentCounter);
   const splitCounter = useAppSelector(selectSplitCounter);
+  const splitEnabled = useAppSelector(selectSplitSupport);
 
   const defaultCounter = {
     value: 0,
@@ -51,8 +54,16 @@ export default function Counters() {
       dispatch(
         setSplitCounter(Number(localStorage.getItem("split_counter")) || 0),
       );
+      splitEnabled &&
+        dispatch(
+          setIsSplit(
+            localStorage.getItem("is_split") === "true" ? true : false,
+          ),
+        );
       dispatch(
-        setIsSplit(localStorage.getItem("is_split") === "true" ? true : false),
+        setSplitSupport(
+          localStorage.getItem("split_support") === "true" ? true : false,
+        ),
       );
       // dispatch(
       //   setSplitCounter(Number(localStorage.getItem("second_counter")) || 0),
@@ -74,10 +85,15 @@ export default function Counters() {
     }
   }, [currentCounter, splitCounter]);
 
+  useEffect(() => {
+    if (splitEnabled !== null)
+      localStorage.setItem("split_support", splitEnabled.toString());
+  }, [splitEnabled]);
+
   if (currentCounter === null) return;
   return (
     <>
-      <button
+      {/* <button
         disabled={counters.length < 2}
         onClick={() => {
           if (splitCounter === null) {
@@ -88,10 +104,10 @@ export default function Counters() {
         className="absolute right-16 top-8 z-10 text-2xs uppercase text-white opacity-50 transition-opacity duration-500 ease-out hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-25 disabled:hover:opacity-25"
       >
         Split
-      </button>
+      </button> */}
       <div className="flex h-full w-full flex-col md:flex-row">
         <Counter currentCounter={currentCounter} />
-        {splitCounter !== null && isSplit && (
+        {splitEnabled && splitCounter !== null && isSplit && (
           <Counter currentCounter={splitCounter} split />
         )}
       </div>

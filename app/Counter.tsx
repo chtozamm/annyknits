@@ -9,6 +9,7 @@ import {
   resetCounter,
   selectCounters,
   selectSplitCounter,
+  selectSplitSupport,
   setSplitCounter,
 } from "@/lib/redux/features/counters/countersSlice";
 import { setPageState } from "@/lib/redux/features/page/pageSlice";
@@ -36,6 +37,7 @@ export default function Counter({ currentCounter, split }: CounterProps) {
   const isSplit = useAppSelector(selectIsSplit);
   const splitCounter = useAppSelector(selectSplitCounter);
   const settingsRef = useRef<HTMLDivElement>(null);
+  const splitEnabled = useAppSelector(selectSplitSupport);
 
   // // Keypress handler
   // useEffect(() => {
@@ -134,48 +136,49 @@ export default function Counter({ currentCounter, split }: CounterProps) {
         transition={pageTransition}
         className="flex h-full w-full flex-col items-center justify-evenly"
       >
-        {split ? (
-          isSplit && (
+        {splitEnabled &&
+          (split ? (
+            isSplit && (
+              <button
+                disabled={counters.length < 2}
+                onClick={() => {
+                  // if (splitCounter === null) {
+                  //   dispatch(setSplitCounter(0));
+                  // }
+                  dispatch(setIsSplit(false));
+                  dispatch(setSplitCounter(null));
+                  localStorage.setItem("is_split", "false");
+                }}
+                className="absolute right-16 top-8 z-10 text-2xs uppercase text-white opacity-50 transition-opacity duration-500 ease-out hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-25 disabled:hover:opacity-25"
+              >
+                Close
+              </button>
+            )
+          ) : (
             <button
-              disabled={counters.length < 2}
+              disabled={counters.length < 2 || isSplit}
               onClick={() => {
-                // if (splitCounter === null) {
-                //   dispatch(setSplitCounter(0));
-                // }
-                dispatch(setIsSplit(false));
-                dispatch(setSplitCounter(null));
-                localStorage.setItem("is_split", "false");
-              }}
-              className="absolute right-16 top-8 z-10 text-2xs uppercase text-white opacity-50 transition-opacity duration-500 ease-out hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-25 disabled:hover:opacity-25"
-            >
-              Close
-            </button>
-          )
-        ) : (
-          <button
-            disabled={counters.length < 2 || isSplit}
-            onClick={() => {
-              if (splitCounter === null) {
-                if (currentCounter === 0) {
-                  dispatch(setSplitCounter(1));
-                  localStorage.setItem("split_counter", "1");
-                } else {
-                  dispatch(setSplitCounter(0));
-                  localStorage.setItem("split_counter", "0");
+                if (splitCounter === null) {
+                  if (currentCounter === 0) {
+                    dispatch(setSplitCounter(1));
+                    localStorage.setItem("split_counter", "1");
+                  } else {
+                    dispatch(setSplitCounter(0));
+                    localStorage.setItem("split_counter", "0");
+                  }
+                  // if (currentCounter === counters.length - 1) dispatch(setSplitCounter(counters.length - 2));
+                  // dispatch(setSplitCounter(0));
                 }
-                // if (currentCounter === counters.length - 1) dispatch(setSplitCounter(counters.length - 2));
-                // dispatch(setSplitCounter(0));
-              }
-              // if (isSplit) localStorage.setItem("is_split", "false");
-              // else
-              localStorage.setItem("is_split", "true");
-              dispatch(setIsSplit(!isSplit));
-            }}
-            className={`${isSplit ? "font-medium opacity-100" : "opacity-50 hover:opacity-100  disabled:opacity-25 disabled:hover:opacity-25"} absolute right-16 top-8 z-10 text-2xs uppercase text-white transition-opacity duration-500 ease-out disabled:cursor-not-allowed`}
-          >
-            Split
-          </button>
-        )}
+                // if (isSplit) localStorage.setItem("is_split", "false");
+                // else
+                localStorage.setItem("is_split", "true");
+                dispatch(setIsSplit(!isSplit));
+              }}
+              className={`${isSplit ? "font-medium opacity-100" : "opacity-50 hover:opacity-100  disabled:opacity-25 disabled:hover:opacity-25"} absolute right-16 top-8 z-10 text-2xs uppercase text-white transition-opacity duration-500 ease-out disabled:cursor-not-allowed`}
+            >
+              Split
+            </button>
+          ))}
         <button
           id="open-settings"
           disabled={showSettings}

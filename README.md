@@ -46,3 +46,6 @@ npm run start
 - Split mode: have multiple controllable counter on screen at the same time;
 
 - Either lock orientation or change counter and buttons layout;
+
+- Update readme
+- Fix: when split button is pressed, sometimes the main counter opens as split one as well
