@@ -12,7 +12,7 @@ type BackgroundProps = { currentCounter: number; split?: boolean };
 export default function Background({ currentCounter, split }: BackgroundProps) {
   // const currentCounter = useAppSelector(selectCurrentCounter);
   const counters = useAppSelector(selectCounters);
-  if (currentCounter === null) return;
+  if (!currentCounter && currentCounter !== 0) return;
   return (
     <div
       // initial={{ opacity: 0 }}

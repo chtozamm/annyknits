@@ -71,14 +71,14 @@ export default function CounterPicker({ id, split }: CounterPickerProps) {
         {/* Current counter */}
         <h1
           onClick={() => setIsOpen(!isOpen)}
-          className={`${isOpen && counters.length > 1 && splitCounter === null && "border-b border-white border-opacity-20 pb-2"} ${splitCounter !== null && isOpen && counters.length > 2 && "border-b border-white border-opacity-20 pb-2"} flex w-full items-center gap-1.5 font-semibold tracking-wide transition-opacity duration-500 ease-out hover:cursor-pointer hover:opacity-75`}
+          className={`${isOpen && counters.length > 1 && !splitCounter && splitCounter !== 0 && "border-b border-white border-opacity-20 pb-2"} ${splitCounter !== null && isOpen && counters.length > 2 && "border-b border-white border-opacity-20 pb-2"} flex w-full items-center gap-1.5 font-semibold tracking-wide transition-opacity duration-500 ease-out hover:cursor-pointer hover:opacity-75`}
         >
-          {counters[id].icon && (
+          {counters[id]?.icon && (
             <span className="relative inline-flex aspect-square w-8 items-center justify-center rounded-full bg-black bg-opacity-20">
-              <span className="absolute text-lg">{counters[id].icon}</span>
+              <span className="absolute text-lg">{counters[id]?.icon}</span>
             </span>
           )}
-          {counters[id].name}
+          {counters[id]?.name}
           {isOpen ? (
             <ChevronUpIcon
               className="pointer-events-none inline h-3 w-3"
@@ -107,8 +107,19 @@ export default function CounterPicker({ id, split }: CounterPickerProps) {
                     : idx === currentCounter
                 }
                 key={idx}
+                // ${isSplit && !split ? (splitCounter !== null && idx === splitCounter ? "font-bold" : null) : idx === currentCounter ? "font-bold" : null}
                 className={`${isOpen ? "block" : "hidden"} w-full px-1 py-1 text-left text-sm transition-opacity duration-500 ease-out last:mb-2 hover:opacity-75 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:opacity-50`}
                 onClick={() => {
+                  // if (isSplit && splitCounter) {
+                  //   if (idx === currentCounter) {
+                  //     dispatch(setCurrentCounter(splitCounter));
+                  //     dispatch(setSplitCounter(idx));
+                  //   }
+                  //   if (idx === splitCounter) {
+                  //     dispatch(setSplitCounter(currentCounter));
+                  //     dispatch(setCurrentCounter(idx));
+                  //   }
+                  // }
                   split
                     ? dispatch(setSplitCounter(idx))
                     : dispatch(setCurrentCounter(idx));

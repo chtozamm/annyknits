@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useAnimationControls } from "framer-motion";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import {
@@ -9,10 +9,8 @@ import {
   resetCounter,
   selectCounters,
   selectSplitCounter,
-  selectSplitSupport,
   setSplitCounter,
 } from "@/lib/redux/features/counters/countersSlice";
-import { setPageState } from "@/lib/redux/features/page/pageSlice";
 import { pageTransition } from "./animations";
 import CounterPicker from "./CounterPicker";
 import { ChevronDownIcon, ChevronUpIcon, SettingsIcon } from "./icons";
@@ -21,6 +19,7 @@ import Background from "./Background";
 import Settings from "./Settings";
 import {
   selectIsSplit,
+  selectSplitEnabled,
   setIsSplit,
 } from "@/lib/redux/features/split/splitSlice";
 
@@ -36,56 +35,31 @@ export default function Counter({ currentCounter, split }: CounterProps) {
   const [showSettings, setShowSettings] = useState(false);
   const isSplit = useAppSelector(selectIsSplit);
   const splitCounter = useAppSelector(selectSplitCounter);
-  const settingsRef = useRef<HTMLDivElement>(null);
-  const splitEnabled = useAppSelector(selectSplitSupport);
+  const splitEnabled = useAppSelector(selectSplitEnabled);
 
   // // Keypress handler
-  // useEffect(() => {
-  //   const handleKeypress = (e: KeyboardEvent) => {
-  //     if (currentPage === "counter") {
-  //       if (e.key === "ArrowUp") handleIncrease();
-  //       if (e.key === "ArrowDown") handleDecrease();
-  //       if (e.key === "ArrowRight") dispatch(setPageState("settings"));
-  //     } else {
-  //       if (e.key === "Escape") dispatch(setPageState("counter"));
-  //     }
-  //     // if (e.key === "ArrowRight") dispatch(setPageState("settings"));
-  //     // if (e.key === "ArrowLeft") dispatch(setPageState("counter"));
-  //   };
-  //   window.addEventListener("keydown", handleKeypress);
-  //   return () => {
-  //     window.removeEventListener("keydown", handleKeypress);
-  //   };
-  // }, [currentCounter, counters, currentPage]);
-
-  // useEffect(() => {
-  //   // Close settings when click outside of its container
-  //   const handleClickOutside = (e: MouseEvent) => {
-  //     // const settingsContainer = document.getElementById("settings");
-  //     const settingsContainer = document.getElementById("settings");
-  //     const openSettingsButton = document.getElementById("open-settings");
-  //     if (
-  //       settingsContainer &&
-  //       openSettingsButton &&
-  //       showSettings &&
-  //       !settingsContainer.contains(e.target as Node) &&
-  //       !openSettingsButton.contains(e.target as Node)
-  //     ) {
-  //       setShowSettings(false);
-  //     }
-  //   };
-  //   window.addEventListener("click", handleClickOutside);
-  //   return () => {
-  //     window.removeEventListener("click", handleClickOutside);
-  //   };
-  // }, [showSettings]);
+  useEffect(() => {
+    const handleKeypress = (e: KeyboardEvent) => {
+      if (!showSettings) {
+        if (e.key === "ArrowUp") handleIncrease();
+        if (e.key === "ArrowDown") handleDecrease();
+        if (e.key === "ArrowRight") setShowSettings(true);
+      } else {
+        if (e.key === "Escape") setShowSettings(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeypress);
+    return () => {
+      window.removeEventListener("keydown", handleKeypress);
+    };
+  }, [currentCounter, counters, showSettings]);
 
   // Counter value controllers
   const handleIncrease = () => {
-    if (currentCounter === null) return;
+    if (!currentCounter && currentCounter !== 0) return;
     if (
       counters[currentCounter].goal !== null
-        ? counters[currentCounter].value >= counters[currentCounter].goal!
+        ? counters[currentCounter]?.value >= counters[currentCounter].goal!
         : false
     )
       return;
@@ -99,18 +73,22 @@ export default function Counter({ currentCounter, split }: CounterProps) {
     dispatch(increaseCounter(currentCounter));
   };
   const handleDecrease = () => {
-    if (currentCounter === null || counters[currentCounter].value === 0) return;
+    if (
+      (!currentCounter && currentCounter !== 0) ||
+      counters[currentCounter]?.value === 0
+    )
+      return;
     dispatch(decreaseCounter(currentCounter));
   };
   // Resets counter value to 0
   const handleDoubleClick = () => {
-    if (currentCounter === null) return;
+    if (!currentCounter && currentCounter !== 0) return;
     if (counters[currentCounter]?.value === 0) return;
     resetAnimationControls.start({ opacity: [0, 0.1, 0] });
     dispatch(resetCounter(currentCounter));
   };
 
-  if (counters.length < 1 || currentCounter === null) return;
+  if (counters.length < 1 || (!currentCounter && currentCounter !== 0)) return;
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -142,7 +120,7 @@ export default function Counter({ currentCounter, split }: CounterProps) {
               <button
                 disabled={counters.length < 2}
                 onClick={() => {
-                  // if (splitCounter === null) {
+                  // if (!splitCounter && splitCounter !== 0) {
                   //   dispatch(setSplitCounter(0));
                   // }
                   dispatch(setIsSplit(false));
@@ -156,23 +134,30 @@ export default function Counter({ currentCounter, split }: CounterProps) {
             )
           ) : (
             <button
-              disabled={counters.length < 2 || isSplit}
+              disabled={counters.length < 2}
               onClick={() => {
-                if (splitCounter === null) {
-                  if (currentCounter === 0) {
-                    dispatch(setSplitCounter(1));
-                    localStorage.setItem("split_counter", "1");
-                  } else {
-                    dispatch(setSplitCounter(0));
-                    localStorage.setItem("split_counter", "0");
+                if (isSplit) {
+                  dispatch(setIsSplit(false));
+                  dispatch(setSplitCounter(null));
+                  localStorage.setItem("is_split", "false");
+                } else {
+                  if (!splitCounter && splitCounter !== 0) {
+                    // if (currentCounter === 0) {
+                    // dispatch(setSplitCounter(1));
+                    // localStorage.setItem("split_counter", "1");
+                    // } else {
+                    //   dispatch(setSplitCounter(0));
+                    //   localStorage.setItem("split_counter", "0");
+                    // }
+                    if (currentCounter === counters.length - 1) {
+                      dispatch(setSplitCounter(currentCounter - 1));
+                    } else {
+                      dispatch(setSplitCounter(currentCounter + 1));
+                    }
                   }
-                  // if (currentCounter === counters.length - 1) dispatch(setSplitCounter(counters.length - 2));
-                  // dispatch(setSplitCounter(0));
+                  localStorage.setItem("is_split", "true");
+                  dispatch(setIsSplit(!isSplit));
                 }
-                // if (isSplit) localStorage.setItem("is_split", "false");
-                // else
-                localStorage.setItem("is_split", "true");
-                dispatch(setIsSplit(!isSplit));
               }}
               className={`${isSplit ? "font-medium opacity-100" : "opacity-50 hover:opacity-100  disabled:opacity-25 disabled:hover:opacity-25"} absolute right-16 top-8 z-10 text-2xs uppercase text-white transition-opacity duration-500 ease-out disabled:cursor-not-allowed`}
             >
@@ -184,7 +169,6 @@ export default function Counter({ currentCounter, split }: CounterProps) {
           disabled={showSettings}
           onClick={() => {
             setShowSettings(true);
-            // dispatch(setPageState("settings"));
           }}
           className="absolute right-2 top-5 z-10 rounded-md p-2 text-white opacity-50 transition-all duration-500 ease-out hover:opacity-100 md:disabled:opacity-0"
         >
@@ -208,7 +192,7 @@ export default function Counter({ currentCounter, split }: CounterProps) {
       text-6xl opacity-50 transition-opacity duration-500 ease-out hover:opacity-100 active:opacity-100 disabled:opacity-0 disabled:hover:opacity-0 md:focus-visible:opacity-100 short:order-3"
             disabled={
               !!counters[currentCounter]?.goal &&
-              counters[currentCounter].value >= counters[currentCounter]?.goal!
+              counters[currentCounter]?.value >= counters[currentCounter]?.goal!
             }
             onClick={handleIncrease}
           >
@@ -223,7 +207,7 @@ export default function Counter({ currentCounter, split }: CounterProps) {
             className="order-2 select-none font-mono text-8xl font-black text-white drop-shadow-sm"
             onDoubleClick={handleDoubleClick}
           >
-            {counters[currentCounter].value || 0}
+            {counters[currentCounter]?.value || 0}
           </motion.p>
           <motion.button
             whileTap={{ scale: 1.25 }}
@@ -231,7 +215,7 @@ export default function Counter({ currentCounter, split }: CounterProps) {
             className="relative z-10 order-3 flex aspect-square w-fit items-center justify-items-center rounded-full
       text-6xl opacity-50 transition-opacity duration-500 ease-out hover:opacity-100 active:opacity-100 disabled:opacity-0 hover:disabled:opacity-0 md:focus-visible:opacity-100 short:order-1"
             onClick={handleDecrease}
-            disabled={counters[currentCounter].value <= 0}
+            disabled={counters[currentCounter]?.value <= 0}
           >
             <ChevronDownIcon
               className="h-24 w-24 rounded-full text-white"
@@ -239,27 +223,19 @@ export default function Counter({ currentCounter, split }: CounterProps) {
             />
           </motion.button>
         </section>
-        {!!counters[currentCounter]?.goal && (
-          <section
-            // TODO: on click open settings and focus target input field
-            onClick={() => {
-              //   dispatch(setPageState("settings"));
-              //   (
-              //     document.getElementById("target") as HTMLInputElement
-              //   )?.focus();
-              setShowSettings(true);
-              setTimeout(() => {
-                (
-                  document.getElementById("target") as HTMLInputElement
-                )?.focus();
-              }, 300);
-              // targetInputRef.current?.focus();
-            }}
-            className="absolute bottom-4 cursor-pointer select-none text-2xs uppercase text-white opacity-50 transition-opacity duration-500 ease-out hover:opacity-100"
-          >
-            {`Goal: ${counters[currentCounter]?.goal}`}
-          </section>
-        )}
+        <section
+          onClick={() => {
+            setShowSettings(true);
+            setTimeout(() => {
+              (document.getElementById("target") as HTMLInputElement)?.focus();
+            }, 300);
+          }}
+          className="absolute bottom-4 cursor-pointer select-none text-2xs uppercase text-white opacity-50 transition-opacity duration-500 ease-out hover:opacity-100"
+        >
+          {!!counters[currentCounter]?.goal
+            ? `Goal: ${counters[currentCounter]?.goal}`
+            : "Set goal"}
+        </section>
       </motion.div>
       <Settings
         currentCounter={currentCounter}

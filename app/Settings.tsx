@@ -1,6 +1,6 @@
 "use client";
 
-import { RefObject, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import {
   deleteCounter,
@@ -8,11 +8,8 @@ import {
   resetLabel,
   resetValue,
   selectCounters,
-  selectCurrentCounter,
   selectSplitCounter,
-  selectSplitSupport,
   setSplitCounter,
-  setSplitSupport,
   updateGoal,
   updateIcon,
   updateLabel,
@@ -20,16 +17,20 @@ import {
   updateValue,
 } from "@/lib/redux/features/counters/countersSlice";
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  selectCurrentPage,
-  setPageState,
-} from "@/lib/redux/features/page/pageSlice";
 import { pageTransition } from "./animations";
-import { ArrowLeftIcon, ArrowRightIcon, XIcon } from "./icons";
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  CheckmarkIcon,
+  CircleIcon,
+  XIcon,
+} from "./icons";
 import { colors, icons } from "./data";
 import {
   selectIsSplit,
+  selectSplitEnabled,
   setIsSplit,
+  setSplitEnabled,
 } from "@/lib/redux/features/split/splitSlice";
 
 type SettingsProps = {
@@ -44,42 +45,52 @@ export default function Settings({
   setIsOpen,
 }: SettingsProps) {
   const dispatch = useAppDispatch();
-  // const currentCounter = useAppSelector(selectCurrentCounter);
   const counters = useAppSelector(selectCounters);
-  // const currentPage = useAppSelector(selectCurrentPage);
   const [showDialog, setShowDialog] = useState(false);
   const labelInputRef = useRef<HTMLInputElement>(null);
   const valueInputRef = useRef<HTMLInputElement>(null);
   const targetInputRef = useRef<HTMLInputElement>(null);
   const settingsRef = useRef<HTMLDivElement>(null);
+  const dimmerRef = useRef<HTMLDivElement>(null);
   const splitCounter = useAppSelector(selectSplitCounter);
   const isSplit = useAppSelector(selectIsSplit);
-  const splitEnabled = useAppSelector(selectSplitSupport);
+  const splitEnabled = useAppSelector(selectSplitEnabled);
 
-  // useEffect(() => {
-  //   currentPage === "counter" && setShowDialog(false);
-  // }, [currentPage]);
+  useEffect(() => {
+    // Close settings when click outside of its container
+    const handleClickOutside = (e: MouseEvent) => {
+      const settingsContainer = settingsRef.current;
+      const dimmerContainer = dimmerRef.current;
+      if (
+        settingsContainer &&
+        dimmerContainer &&
+        isOpen &&
+        !settingsContainer.contains(e.target as Node) &&
+        dimmerContainer.contains(e.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
 
-  // TODO: close settings when click outside of its container
-  // useEffect(() => {
-  //   // Close settings when click outside of its container
-  //   const handleClickOutside = (e: MouseEvent) => {
-  //     const settingsContainer = settingsRef.current;
-  //     if (
-  //       settingsContainer &&
-  //       isOpen &&
-  //       !settingsContainer.contains(e.target as Node)
-  //     ) {
-  //       setIsOpen(false);
-  //     }
-  //   };
-  //   window.addEventListener("click", handleClickOutside);
-  //   return () => {
-  //     window.removeEventListener("click", handleClickOutside);
-  //   };
-  // }, [isOpen]);
+    if (!isOpen) setShowDialog(false);
 
-  if (currentCounter === null) return;
+    window.addEventListener("click", handleClickOutside);
+    return () => {
+      window.removeEventListener("click", handleClickOutside);
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (showDialog && isOpen) {
+      settingsRef.current?.classList.remove("overflow-y-auto");
+      settingsRef.current?.classList.add("overflow-y-hidden");
+    } else {
+      settingsRef.current?.classList.remove("overflow-y-hidden");
+      settingsRef.current?.classList.add("overflow-y-auto");
+    }
+  }, [showDialog, isOpen]);
+
+  if (!currentCounter && currentCounter !== 0) return;
   return (
     <>
       <AnimatePresence>
@@ -90,6 +101,7 @@ export default function Settings({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={pageTransition}
+              ref={dimmerRef}
               className={`absolute inset-0 z-50 h-full w-full bg-black bg-opacity-45 md:max-w-full`}
             />
             <motion.div
@@ -97,26 +109,21 @@ export default function Settings({
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={pageTransition}
-              // id="settings"
               ref={settingsRef}
-              // pt-20
               className={`absolute z-50 flex h-full w-full flex-col items-center overflow-y-auto bg-black bg-opacity-95 p-8 text-white sm:pb-8 md:right-0 md:max-w-md short:px-10`}
             >
               <div className="mx-auto flex w-full max-w-md flex-col gap-8">
-                {/* <CounterPicker /> */}
                 <div className="relative flex w-full items-center justify-center">
                   <p className="relative select-none text-center text-xs font-semibold uppercase">
                     Customization
                   </p>
                   <button
-                    // onClick={() => dispatch(setPageState("counter"))}
                     onClick={() => setIsOpen(false)}
                     className="absolute -left-2 p-2 opacity-50 transition-all duration-500 ease-out hover:opacity-100 md:hidden"
                   >
                     <ArrowLeftIcon className="h-4 w-4" />
                   </button>
                   <button
-                    // onClick={() => dispatch(setPageState("counter"))}
                     onClick={() => setIsOpen(false)}
                     className="absolute -left-2 hidden p-2 opacity-50 transition-all duration-500 ease-out hover:opacity-100 md:block"
                   >
@@ -263,7 +270,7 @@ export default function Settings({
                     <label className="select-none text-3xs font-semibold uppercase">
                       Theme color
                     </label>
-                    <button
+                    {/* <button
                       onClick={() => {
                         let color = counters[currentCounter].theme;
                         while (color === counters[currentCounter].theme) {
@@ -277,13 +284,33 @@ export default function Settings({
                           }),
                         );
                       }}
-                      className="text-3xs font-normal uppercase opacity-50"
+                      className="text-3xs font-normal uppercase opacity-50 transition-opacity duration-500 ease-out hover:opacity-25"
                     >
-                      {/* <ShuffleIcon className="h-4 w-4" /> */}
-                      Select Random
-                    </button>
+                      <ShuffleIcon className="h-4 w-4" /> 
+                    Select Random
+                    </button> */}
                   </div>
                   <ul className="flex select-none flex-wrap gap-2">
+                    <li className="relative flex items-center justify-center">
+                      <button
+                        onClick={() => {
+                          let color = counters[currentCounter].theme;
+                          while (color === counters[currentCounter].theme) {
+                            color =
+                              colors[Math.floor(Math.random() * colors.length)];
+                          }
+                          dispatch(
+                            updateTheme({
+                              id: currentCounter,
+                              value: color,
+                            }),
+                          );
+                        }}
+                        className="h-6 w-6 rounded-full bg-transparent text-center text-sm opacity-25 transition-opacity duration-500 ease-out hover:opacity-50"
+                      >
+                        ?
+                      </button>
+                    </li>
                     {colors.map((color) => (
                       <li
                         key={color}
@@ -325,7 +352,7 @@ export default function Settings({
                     <label className="select-none text-3xs font-semibold uppercase">
                       Icon
                     </label>
-                    <button
+                    {/*  <button
                       onClick={() => {
                         let icon = counters[currentCounter].icon;
                         while (icon === counters[currentCounter].icon) {
@@ -339,13 +366,33 @@ export default function Settings({
                           }),
                         );
                       }}
-                      className="text-3xs font-normal uppercase opacity-50"
+                      className="text-3xs font-normal uppercase opacity-50 transition-opacity duration-500 ease-out hover:opacity-25"
                     >
-                      {/* <ShuffleIcon className="h-4 w-4" /> */}
+                      {/* <ShuffleIcon className="h-4 w-4" />
                       Select Random
-                    </button>
+                    </button> */}
                   </div>
                   <ul className="flex select-none flex-wrap gap-2">
+                    <li className="relative flex items-center justify-center">
+                      <button
+                        onClick={() => {
+                          let icon = counters[currentCounter].icon;
+                          while (icon === counters[currentCounter].icon) {
+                            icon =
+                              icons[Math.floor(Math.random() * icons.length)];
+                          }
+                          dispatch(
+                            updateIcon({
+                              id: currentCounter,
+                              value: icon,
+                            }),
+                          );
+                        }}
+                        className="h-8 w-8 rounded-full bg-transparent text-center text-sm opacity-25 transition-opacity duration-500 ease-out hover:opacity-50"
+                      >
+                        ?
+                      </button>
+                    </li>
                     {icons.map((icon) => (
                       <li
                         key={icon}
@@ -386,51 +433,25 @@ export default function Settings({
                 </section>
                 <section className="flex select-none flex-col gap-4">
                   <div className="flex items-center gap-1.5">
-                    <label className="select-none text-3xs font-semibold uppercase">
-                      Split feature
-                    </label>
-                    <span className="text-3xs font-normal uppercase opacity-50">
-                      (Experimental)
-                    </span>
-                  </div>
-                  <div>
                     <label
-                      htmlFor="split-on"
-                      className="inline-flex items-center gap-0.5 text-3xs font-normal uppercase"
-                    >
-                      <input
-                        type="radio"
-                        name="split-feautre"
-                        id="split-on"
-                        value="on"
-                        checked={splitEnabled === true}
-                        className="accent-black"
-                        onChange={(e) =>
-                          e.target.value === "on"
-                            ? dispatch(setSplitSupport(true))
-                            : dispatch(setSplitSupport(false))
+                      onClick={() => {
+                        dispatch(setSplitEnabled(!splitEnabled));
+                        if (!splitEnabled) {
+                          dispatch(setSplitCounter(null));
+                          dispatch(setIsSplit(null));
                         }
-                      />
-                      On
-                    </label>
-                    <label
-                      htmlFor="split-off"
-                      className="ml-2 inline-flex items-center gap-0.5 text-3xs font-normal uppercase"
+                      }}
+                      className="group inline-flex items-center gap-1.5 text-3xs font-normal uppercase transition-opacity duration-500 ease-out hover:opacity-50"
                     >
-                      <input
-                        type="radio"
-                        name="split-feautre"
-                        id="split-off"
-                        value="off"
-                        checked={splitEnabled === false}
-                        className="accent-black"
-                        onChange={(e) =>
-                          e.target.value === "on"
-                            ? dispatch(setSplitSupport(true))
-                            : dispatch(setSplitSupport(false))
-                        }
-                      />
-                      Off
+                      {splitEnabled ? (
+                        <CheckmarkIcon className="h-4 w-4 text-green-700" />
+                      ) : (
+                        <CircleIcon className="h-4 w-4" />
+                      )}
+                      Enable Split mode
+                      <span className="text-3xs font-normal uppercase opacity-50">
+                        (Experimental)
+                      </span>
                     </label>
                   </div>
                 </section>
@@ -465,14 +486,19 @@ export default function Settings({
                       <div className="flex gap-8">
                         <button
                           onClick={() => {
-                            if (counters.length === 2 && isSplit) {
+                            if (
+                              isSplit &&
+                              counters.length === 2
+                              // || currentCounter === splitCounter
+                            ) {
                               dispatch(setIsSplit(false));
                               dispatch(setSplitCounter(null));
-                            }
-                            if (currentCounter === splitCounter) {
-                              dispatch(setIsSplit(false));
-                              dispatch(setSplitCounter(null));
-                            }
+                            } else if (
+                              isSplit &&
+                              splitCounter &&
+                              splitCounter >= currentCounter
+                            )
+                              dispatch(setSplitCounter(splitCounter - 1));
                             dispatch(deleteCounter(currentCounter));
                             setShowDialog(false);
                             setIsOpen(false);
