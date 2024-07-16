@@ -51,7 +51,9 @@ export default function LocalStorage() {
       );
       dispatch(setIsSplit(localStorage.getItem("is_split") === "true"));
       dispatch(
-        setSplitEnabled(localStorage.getItem("split_support") === "true"),
+        setSplitEnabled(
+          localStorage.getItem("split_support") === "false" ? false : true,
+        ),
       );
     }
   }, []);

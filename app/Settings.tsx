@@ -441,14 +441,14 @@ export default function Settings({
                           dispatch(setIsSplit(null));
                         }
                       }}
-                      className="group inline-flex items-center gap-1.5 text-3xs font-normal uppercase transition-opacity duration-500 ease-out hover:opacity-50"
+                      className="group inline-flex items-center gap-1.5 text-3xs font-normal uppercase transition-opacity duration-500 ease-out hover:cursor-pointer hover:opacity-50"
                     >
                       {splitEnabled ? (
                         <CheckmarkIcon className="h-4 w-4 text-green-700" />
                       ) : (
                         <CircleIcon className="h-4 w-4" />
                       )}
-                      Enable Split mode
+                      Toggle Split mode
                       <span className="text-3xs font-normal uppercase opacity-50">
                         (Experimental)
                       </span>

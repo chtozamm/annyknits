@@ -159,7 +159,7 @@ export default function Counter({ currentCounter, split }: CounterProps) {
                   dispatch(setIsSplit(!isSplit));
                 }
               }}
-              className={`${isSplit ? "font-medium opacity-100" : "opacity-50 hover:opacity-100  disabled:opacity-25 disabled:hover:opacity-25"} absolute right-16 top-8 z-10 text-2xs uppercase text-white transition-opacity duration-500 ease-out disabled:cursor-not-allowed`}
+              className={`${isSplit ? "font-medium opacity-100" : "opacity-50 hover:opacity-100 disabled:opacity-25 disabled:hover:opacity-25"} absolute right-16 top-8 z-10 text-2xs uppercase text-white transition-opacity duration-500 ease-out disabled:cursor-not-allowed`}
             >
               Split
             </button>
@@ -188,8 +188,7 @@ export default function Counter({ currentCounter, split }: CounterProps) {
           <motion.button
             whileTap={{ scale: 1.25 }}
             transition={{ duration: 0.2 }}
-            className="relative z-10 order-1 flex aspect-square w-fit items-center justify-items-center rounded-full
-      text-6xl opacity-50 transition-opacity duration-500 ease-out hover:opacity-100 active:opacity-100 disabled:opacity-0 disabled:hover:opacity-0 md:focus-visible:opacity-100 short:order-3"
+            className="relative z-10 order-1 flex aspect-square w-fit items-center justify-items-center rounded-full text-6xl opacity-50 transition-opacity duration-500 ease-out hover:opacity-100 active:opacity-100 disabled:opacity-0 disabled:hover:opacity-0 md:focus-visible:opacity-100 short:order-3"
             disabled={
               !!counters[currentCounter]?.goal &&
               counters[currentCounter]?.value >= counters[currentCounter]?.goal!
@@ -212,8 +211,7 @@ export default function Counter({ currentCounter, split }: CounterProps) {
           <motion.button
             whileTap={{ scale: 1.25 }}
             transition={{ duration: 0.2 }}
-            className="relative z-10 order-3 flex aspect-square w-fit items-center justify-items-center rounded-full
-      text-6xl opacity-50 transition-opacity duration-500 ease-out hover:opacity-100 active:opacity-100 disabled:opacity-0 hover:disabled:opacity-0 md:focus-visible:opacity-100 short:order-1"
+            className="relative z-10 order-3 flex aspect-square w-fit items-center justify-items-center rounded-full text-6xl opacity-50 transition-opacity duration-500 ease-out hover:opacity-100 active:opacity-100 disabled:opacity-0 hover:disabled:opacity-0 md:focus-visible:opacity-100 short:order-1"
             onClick={handleDecrease}
             disabled={counters[currentCounter]?.value <= 0}
           >
