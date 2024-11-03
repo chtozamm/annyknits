@@ -1,12 +1,12 @@
-"use client";
+"use client"
 
-import { AnimatePresence, AnimationProps, motion } from "framer-motion";
+import { AnimatePresence, AnimationProps, motion } from "framer-motion"
 
 type ScreenDimmerType = {
-  isShown: boolean;
-  opacity: number;
-  transition: AnimationProps["transition"];
-};
+  isShown: boolean
+  opacity: number
+  transition: AnimationProps["transition"]
+}
 
 export default function ScreenDimmer({
   isShown,
@@ -25,5 +25,5 @@ export default function ScreenDimmer({
         />
       )}
     </AnimatePresence>
-  );
+  )
 }

@@ -1,4 +1,4 @@
-import { AnimationProps } from "framer-motion";
+import { AnimationProps } from "framer-motion"
 export const pageTransition: AnimationProps["transition"] = {
   // type: "spring",
   // damping: 22,
@@ -11,4 +11,4 @@ export const pageTransition: AnimationProps["transition"] = {
   type: "tween",
   ease: "easeInOut",
   duration: 0.5,
-};
+}

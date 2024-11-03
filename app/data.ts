@@ -15,7 +15,7 @@ export const colors = [
   "cherry",
   "teal",
   "plum",
-];
+]
 export const icons = [
   "🧶",
   "🧣",
@@ -48,7 +48,7 @@ export const icons = [
   "🍂",
   "☀️",
   "🌙",
-];
+]
 
 export const names = [
   "River",
@@ -62,7 +62,7 @@ export const names = [
   "Autumn",
   "Sun",
   "Moon",
-];
+]
 
 // TODO: add more presets
 export const presets = [
@@ -78,4 +78,4 @@ export const presets = [
   { name: "Autumn", theme: "orange", icon: "🍂" },
   { name: "Sun", theme: "orange", icon: "☀️" },
   { name: "Moon", theme: "winterNight", icon: "🌙" },
-];
+]

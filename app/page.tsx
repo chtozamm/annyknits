@@ -1,6 +1,6 @@
-import StoreProvider from "./StoreProvider";
-import Counters from "./Counters";
-import LocalStorage from "./LocalStorage";
+import StoreProvider from "./StoreProvider"
+import Counters from "./Counters"
+import LocalStorage from "./LocalStorage"
 // import { supabase } from "@/lib/supabase";
 // import { cookies } from "next/headers";
 
@@ -18,5 +18,5 @@ export default function Home() {
         <Counters />
       </StoreProvider>
     </main>
-  );
+  )
 }

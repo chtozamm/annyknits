@@ -1,7 +1,7 @@
-"use client";
+"use client"
 
-import { useEffect, useRef, useState } from "react";
-import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
+import { useEffect, useRef, useState } from "react"
+import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks"
 import {
   addCounter,
   selectCounters,
@@ -9,23 +9,23 @@ import {
   selectSplitCounter,
   setCurrentCounter,
   setSplitCounter,
-} from "@/lib/redux/features/counters/countersSlice";
-import { ChevronDownIcon, ChevronUpIcon, PlusIcon } from "./icons";
+} from "@/lib/redux/features/counters/countersSlice"
+import { ChevronDownIcon, ChevronUpIcon, PlusIcon } from "./icons"
 // import { defaultCounter } from "./data";
-import ScreenDimmer from "./ScreenDimmer";
-import { colors, icons, presets } from "./data";
-import { selectIsSplit } from "@/lib/redux/features/split/splitSlice";
+import ScreenDimmer from "./ScreenDimmer"
+import { colors, icons, presets } from "./data"
+import { selectIsSplit } from "@/lib/redux/features/split/splitSlice"
 
-type CounterPickerProps = { id: number; split?: boolean };
+type CounterPickerProps = { id: number; split?: boolean }
 
 export default function CounterPicker({ id, split }: CounterPickerProps) {
-  const dispatch = useAppDispatch();
-  const counters = useAppSelector(selectCounters);
-  const currentCounter = useAppSelector(selectCurrentCounter);
-  const splitCounter = useAppSelector(selectSplitCounter);
-  const [isOpen, setIsOpen] = useState(false);
-  const counterPickerRef = useRef<HTMLElement>(null);
-  const isSplit = useAppSelector(selectIsSplit);
+  const dispatch = useAppDispatch()
+  const counters = useAppSelector(selectCounters)
+  const currentCounter = useAppSelector(selectCurrentCounter)
+  const splitCounter = useAppSelector(selectSplitCounter)
+  const [isOpen, setIsOpen] = useState(false)
+  const counterPickerRef = useRef<HTMLElement>(null)
+  const isSplit = useAppSelector(selectIsSplit)
 
   const defaultCounter = {
     value: 0,
@@ -35,27 +35,27 @@ export default function CounterPicker({ id, split }: CounterPickerProps) {
     // name: "New counter",
     // theme: colors[Math.floor(Math.random() * colors.length)],
     // icon: icons[Math.floor(Math.random() * icons.length)],
-  };
+  }
 
   useEffect(() => {
     // Close counter picker when click outside of it
     const handleClickOutside = (e: MouseEvent) => {
-      const counterPicker = counterPickerRef.current;
+      const counterPicker = counterPickerRef.current
       if (
         counterPicker &&
         isOpen &&
         !counterPicker.contains(e.target as Node)
       ) {
-        setIsOpen(false);
+        setIsOpen(false)
       }
-    };
-    window.addEventListener("click", handleClickOutside);
+    }
+    window.addEventListener("click", handleClickOutside)
     return () => {
-      window.removeEventListener("click", handleClickOutside);
-    };
-  }, [isOpen]);
+      window.removeEventListener("click", handleClickOutside)
+    }
+  }, [isOpen])
 
-  if (id === null) return;
+  if (id === null) return
   return (
     <>
       {/* Screen dimmer */}
@@ -96,7 +96,7 @@ export default function CounterPicker({ id, split }: CounterPickerProps) {
           className={`max-h-64 w-full overflow-y-auto ${isOpen && "border-b border-white border-opacity-20"}`}
         >
           {counters.map((counter, idx) => {
-            if (idx === id) return null;
+            if (idx === id) return null
             // if (split && idx === currentCounter) return null;
             // if (splitCounter !== null && idx === splitCounter) return null;
             return (
@@ -122,22 +122,22 @@ export default function CounterPicker({ id, split }: CounterPickerProps) {
                   // }
                   split
                     ? dispatch(setSplitCounter(idx))
-                    : dispatch(setCurrentCounter(idx));
-                  setIsOpen(false);
+                    : dispatch(setCurrentCounter(idx))
+                  setIsOpen(false)
                 }}
               >{`${counter.icon || ""} ${counter.name}: ${counter.value}`}</button>
-            );
+            )
           })}
         </ul>
         {/* Add new */}
         <button
           disabled={counters.length >= 10}
           onClick={() => {
-            dispatch(addCounter(defaultCounter));
+            dispatch(addCounter(defaultCounter))
             split
               ? dispatch(setSplitCounter(counters.length))
-              : dispatch(setCurrentCounter(counters.length));
-            setIsOpen(false);
+              : dispatch(setCurrentCounter(counters.length))
+            setIsOpen(false)
           }}
           className={`${isOpen ? "block" : "hidden"} relative flex w-full min-w-32 items-center justify-center gap-1 rounded-sm bg-white bg-opacity-5 py-1 text-2xs uppercase transition-opacity duration-500 ease-out hover:opacity-75 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:opacity-50`}
         >
@@ -146,5 +146,5 @@ export default function CounterPicker({ id, split }: CounterPickerProps) {
         </button>
       </section>
     </>
-  );
+  )
 }

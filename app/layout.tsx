@@ -1,17 +1,17 @@
-import "./globals.css";
-import type { Metadata } from "next";
-import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
+import "./globals.css"
+import type { Metadata } from "next"
+import { GeistSans } from "geist/font/sans"
+import { GeistMono } from "geist/font/mono"
 
 export const metadata: Metadata = {
   title: "Annyknits",
   description: "A minimalistic counter with themes and persisted value 🧶",
-};
+}
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
     <html lang="en" className="overflow-hidden">
@@ -21,5 +21,5 @@ export default function RootLayout({
         {children}
       </body>
     </html>
-  );
+  )
 }

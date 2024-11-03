@@ -1,8 +1,8 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { AnimatePresence, motion, useAnimationControls } from "framer-motion";
-import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
+import { useEffect, useState } from "react"
+import { AnimatePresence, motion, useAnimationControls } from "framer-motion"
+import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks"
 import {
   decreaseCounter,
   increaseCounter,
@@ -10,85 +10,98 @@ import {
   selectCounters,
   selectSplitCounter,
   setSplitCounter,
-} from "@/lib/redux/features/counters/countersSlice";
-import { pageTransition } from "./animations";
-import CounterPicker from "./CounterPicker";
-import { ChevronDownIcon, ChevronUpIcon, SettingsIcon } from "./icons";
-import { useWindowResize } from "./hooks";
-import Background from "./Background";
-import Settings from "./Settings";
+} from "@/lib/redux/features/counters/countersSlice"
+import { pageTransition } from "./animations"
+import CounterPicker from "./CounterPicker"
+import { ChevronDownIcon, ChevronUpIcon, SettingsIcon } from "./icons"
+import { useWindowResize } from "./hooks"
+import Background from "./Background"
+import Settings from "./Settings"
 import {
   selectIsSplit,
   selectSplitEnabled,
   setIsSplit,
-} from "@/lib/redux/features/split/splitSlice";
+} from "@/lib/redux/features/split/splitSlice"
 
-type CounterProps = { currentCounter: number; split?: boolean };
+type CounterProps = { currentCounter: number; split?: boolean }
 
 export default function Counter({ currentCounter, split }: CounterProps) {
-  const dispatch = useAppDispatch();
-  const counters = useAppSelector(selectCounters);
-  const resetAnimationControls = useAnimationControls();
-  const valueAnimationControls = useAnimationControls();
-  const completeAnimationControls = useAnimationControls();
-  const windowSize = useWindowResize();
-  const [showSettings, setShowSettings] = useState(false);
-  const isSplit = useAppSelector(selectIsSplit);
-  const splitCounter = useAppSelector(selectSplitCounter);
-  const splitEnabled = useAppSelector(selectSplitEnabled);
+  const dispatch = useAppDispatch()
+  const counters = useAppSelector(selectCounters)
+  const resetAnimationControls = useAnimationControls()
+  const valueAnimationControls = useAnimationControls()
+  const completeAnimationControls = useAnimationControls()
+  const windowSize = useWindowResize()
+  const [showSettings, setShowSettings] = useState(false)
+  const isSplit = useAppSelector(selectIsSplit)
+  const splitCounter = useAppSelector(selectSplitCounter)
+  const splitEnabled = useAppSelector(selectSplitEnabled)
 
-  // // Keypress handler
+  // Keypress handler
   useEffect(() => {
     const handleKeypress = (e: KeyboardEvent) => {
       if (!showSettings) {
-        if (e.key === "ArrowUp") handleIncrease();
-        if (e.key === "ArrowDown") handleDecrease();
-        if (e.key === "ArrowRight") setShowSettings(true);
+        if (e.key === "g") openGoalSetting()
+        if (e.key === "ArrowUp") handleIncrease()
+        if (e.key === "ArrowDown") handleDecrease()
+        if (e.key === "+") handleIncrease()
+        if (e.key === "-") handleDecrease()
+        if (e.key === "ArrowRight") setShowSettings(true)
+        if (e.key === "ArrowLeft") setShowSettings(true)
+        if (e.key === "o") setShowSettings(true)
+        if (e.key === "p") setShowSettings(true)
       } else {
-        if (e.key === "Escape") setShowSettings(false);
+        if (e.key === "Escape") setShowSettings(false)
       }
-    };
-    window.addEventListener("keydown", handleKeypress);
+    }
+    window.addEventListener("keydown", handleKeypress)
     return () => {
-      window.removeEventListener("keydown", handleKeypress);
-    };
-  }, [currentCounter, counters, showSettings]);
+      window.removeEventListener("keydown", handleKeypress)
+    }
+  }, [currentCounter, counters, showSettings])
+
+  const openGoalSetting = () => {
+    setShowSettings(true)
+    setTimeout(() => {
+      ;(document.getElementById("target") as HTMLInputElement)?.focus()
+    }, 300)
+  }
 
   // Counter value controllers
   const handleIncrease = () => {
-    if (!currentCounter && currentCounter !== 0) return;
+    if (!currentCounter && currentCounter !== 0) return
     if (
       counters[currentCounter].goal !== null
         ? counters[currentCounter]?.value >= counters[currentCounter].goal!
         : false
     )
-      return;
+      return
     if (
       !!counters[currentCounter].goal &&
       counters[currentCounter].goal === counters[currentCounter]?.value + 1
     ) {
-      completeAnimationControls.start({ opacity: [1, 0], scale: 25 });
-      completeAnimationControls.set({ scale: 1 });
+      completeAnimationControls.start({ opacity: [1, 0], scale: 25 })
+      completeAnimationControls.set({ scale: 1 })
     }
-    dispatch(increaseCounter(currentCounter));
-  };
+    dispatch(increaseCounter(currentCounter))
+  }
   const handleDecrease = () => {
     if (
       (!currentCounter && currentCounter !== 0) ||
       counters[currentCounter]?.value === 0
     )
-      return;
-    dispatch(decreaseCounter(currentCounter));
-  };
+      return
+    dispatch(decreaseCounter(currentCounter))
+  }
   // Resets counter value to 0
   const handleDoubleClick = () => {
-    if (!currentCounter && currentCounter !== 0) return;
-    if (counters[currentCounter]?.value === 0) return;
-    resetAnimationControls.start({ opacity: [0, 0.1, 0] });
-    dispatch(resetCounter(currentCounter));
-  };
+    if (!currentCounter && currentCounter !== 0) return
+    if (counters[currentCounter]?.value === 0) return
+    resetAnimationControls.start({ opacity: [0, 0.1, 0] })
+    dispatch(resetCounter(currentCounter))
+  }
 
-  if (counters.length < 1 || (!currentCounter && currentCounter !== 0)) return;
+  if (counters.length < 1 || (!currentCounter && currentCounter !== 0)) return
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -123,9 +136,9 @@ export default function Counter({ currentCounter, split }: CounterProps) {
                   // if (!splitCounter && splitCounter !== 0) {
                   //   dispatch(setSplitCounter(0));
                   // }
-                  dispatch(setIsSplit(false));
-                  dispatch(setSplitCounter(null));
-                  localStorage.setItem("is_split", "false");
+                  dispatch(setIsSplit(false))
+                  dispatch(setSplitCounter(null))
+                  localStorage.setItem("is_split", "false")
                 }}
                 className="absolute right-16 top-8 z-10 text-2xs uppercase text-white opacity-50 transition-opacity duration-500 ease-out hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-25 disabled:hover:opacity-25"
               >
@@ -137,9 +150,9 @@ export default function Counter({ currentCounter, split }: CounterProps) {
               disabled={counters.length < 2}
               onClick={() => {
                 if (isSplit) {
-                  dispatch(setIsSplit(false));
-                  dispatch(setSplitCounter(null));
-                  localStorage.setItem("is_split", "false");
+                  dispatch(setIsSplit(false))
+                  dispatch(setSplitCounter(null))
+                  localStorage.setItem("is_split", "false")
                 } else {
                   if (!splitCounter && splitCounter !== 0) {
                     // if (currentCounter === 0) {
@@ -150,13 +163,13 @@ export default function Counter({ currentCounter, split }: CounterProps) {
                     //   localStorage.setItem("split_counter", "0");
                     // }
                     if (currentCounter === counters.length - 1) {
-                      dispatch(setSplitCounter(currentCounter - 1));
+                      dispatch(setSplitCounter(currentCounter - 1))
                     } else {
-                      dispatch(setSplitCounter(currentCounter + 1));
+                      dispatch(setSplitCounter(currentCounter + 1))
                     }
                   }
-                  localStorage.setItem("is_split", "true");
-                  dispatch(setIsSplit(!isSplit));
+                  localStorage.setItem("is_split", "true")
+                  dispatch(setIsSplit(!isSplit))
                 }
               }}
               className={`${isSplit ? "font-medium opacity-100" : "opacity-50 hover:opacity-100 disabled:opacity-25 disabled:hover:opacity-25"} absolute right-16 top-8 z-10 text-2xs uppercase text-white transition-opacity duration-500 ease-out disabled:cursor-not-allowed`}
@@ -168,7 +181,7 @@ export default function Counter({ currentCounter, split }: CounterProps) {
           id="open-settings"
           disabled={showSettings}
           onClick={() => {
-            setShowSettings(true);
+            setShowSettings(true)
           }}
           className="absolute right-2 top-5 z-10 rounded-md p-2 text-white opacity-50 transition-all duration-500 ease-out hover:opacity-100 md:disabled:opacity-0"
         >
@@ -222,12 +235,7 @@ export default function Counter({ currentCounter, split }: CounterProps) {
           </motion.button>
         </section>
         <section
-          onClick={() => {
-            setShowSettings(true);
-            setTimeout(() => {
-              (document.getElementById("target") as HTMLInputElement)?.focus();
-            }, 300);
-          }}
+          onClick={() => openGoalSetting()}
           className="absolute bottom-4 cursor-pointer select-none text-2xs uppercase text-white opacity-50 transition-opacity duration-500 ease-out hover:opacity-100"
         >
           {!!counters[currentCounter]?.goal
@@ -241,5 +249,5 @@ export default function Counter({ currentCounter, split }: CounterProps) {
         setIsOpen={setShowSettings}
       />
     </motion.div>
-  );
+  )
 }

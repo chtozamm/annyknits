@@ -10,6 +10,6 @@ const nextConfig = {
       { hostname: "xlfiiggnufwisqytiaxf.supabase.co" },
     ],
   },
-};
+}
 
-export default nextConfig;
+export default nextConfig

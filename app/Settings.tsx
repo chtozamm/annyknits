@@ -1,7 +1,7 @@
-"use client";
+"use client"
 
-import { useEffect, useRef, useState } from "react";
-import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
+import { useEffect, useRef, useState } from "react"
+import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks"
 import {
   deleteCounter,
   resetGoal,
@@ -15,52 +15,52 @@ import {
   updateLabel,
   updateTheme,
   updateValue,
-} from "@/lib/redux/features/counters/countersSlice";
-import { AnimatePresence, motion } from "framer-motion";
-import { pageTransition } from "./animations";
+} from "@/lib/redux/features/counters/countersSlice"
+import { AnimatePresence, motion } from "framer-motion"
+import { pageTransition } from "./animations"
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
   CheckmarkIcon,
   CircleIcon,
   XIcon,
-} from "./icons";
-import { colors, icons } from "./data";
+} from "./icons"
+import { colors, icons } from "./data"
 import {
   selectIsSplit,
   selectSplitEnabled,
   setIsSplit,
   setSplitEnabled,
-} from "@/lib/redux/features/split/splitSlice";
+} from "@/lib/redux/features/split/splitSlice"
 
 type SettingsProps = {
-  currentCounter: number;
-  isOpen: boolean;
-  setIsOpen: (state: boolean) => void;
-};
+  currentCounter: number
+  isOpen: boolean
+  setIsOpen: (state: boolean) => void
+}
 
 export default function Settings({
   currentCounter,
   isOpen,
   setIsOpen,
 }: SettingsProps) {
-  const dispatch = useAppDispatch();
-  const counters = useAppSelector(selectCounters);
-  const [showDialog, setShowDialog] = useState(false);
-  const labelInputRef = useRef<HTMLInputElement>(null);
-  const valueInputRef = useRef<HTMLInputElement>(null);
-  const targetInputRef = useRef<HTMLInputElement>(null);
-  const settingsRef = useRef<HTMLDivElement>(null);
-  const dimmerRef = useRef<HTMLDivElement>(null);
-  const splitCounter = useAppSelector(selectSplitCounter);
-  const isSplit = useAppSelector(selectIsSplit);
-  const splitEnabled = useAppSelector(selectSplitEnabled);
+  const dispatch = useAppDispatch()
+  const counters = useAppSelector(selectCounters)
+  const [showDialog, setShowDialog] = useState(false)
+  const labelInputRef = useRef<HTMLInputElement>(null)
+  const valueInputRef = useRef<HTMLInputElement>(null)
+  const targetInputRef = useRef<HTMLInputElement>(null)
+  const settingsRef = useRef<HTMLDivElement>(null)
+  const dimmerRef = useRef<HTMLDivElement>(null)
+  const splitCounter = useAppSelector(selectSplitCounter)
+  const isSplit = useAppSelector(selectIsSplit)
+  const splitEnabled = useAppSelector(selectSplitEnabled)
 
   useEffect(() => {
     // Close settings when click outside of its container
     const handleClickOutside = (e: MouseEvent) => {
-      const settingsContainer = settingsRef.current;
-      const dimmerContainer = dimmerRef.current;
+      const settingsContainer = settingsRef.current
+      const dimmerContainer = dimmerRef.current
       if (
         settingsContainer &&
         dimmerContainer &&
@@ -68,29 +68,29 @@ export default function Settings({
         !settingsContainer.contains(e.target as Node) &&
         dimmerContainer.contains(e.target as Node)
       ) {
-        setIsOpen(false);
+        setIsOpen(false)
       }
-    };
+    }
 
-    if (!isOpen) setShowDialog(false);
+    if (!isOpen) setShowDialog(false)
 
-    window.addEventListener("click", handleClickOutside);
+    window.addEventListener("click", handleClickOutside)
     return () => {
-      window.removeEventListener("click", handleClickOutside);
-    };
-  }, [isOpen]);
+      window.removeEventListener("click", handleClickOutside)
+    }
+  }, [isOpen])
 
   useEffect(() => {
     if (showDialog && isOpen) {
-      settingsRef.current?.classList.remove("overflow-y-auto");
-      settingsRef.current?.classList.add("overflow-y-hidden");
+      settingsRef.current?.classList.remove("overflow-y-auto")
+      settingsRef.current?.classList.add("overflow-y-hidden")
     } else {
-      settingsRef.current?.classList.remove("overflow-y-hidden");
-      settingsRef.current?.classList.add("overflow-y-auto");
+      settingsRef.current?.classList.remove("overflow-y-hidden")
+      settingsRef.current?.classList.add("overflow-y-auto")
     }
-  }, [showDialog, isOpen]);
+  }, [showDialog, isOpen])
 
-  if (!currentCounter && currentCounter !== 0) return;
+  if (!currentCounter && currentCounter !== 0) return
   return (
     <>
       <AnimatePresence>
@@ -150,15 +150,15 @@ export default function Settings({
                           id: currentCounter,
                           value: e.target.value,
                         }),
-                      );
+                      )
                     }}
                     className="w-full rounded-md bg-white bg-opacity-10 px-2.5 py-1 outline-none transition-all duration-500 ease-out placeholder:text-sm placeholder:text-white placeholder:text-opacity-50 focus-within:bg-opacity-20 hover:bg-opacity-20"
                   />
                   {counters[currentCounter]?.name && (
                     <button
                       onClick={() => {
-                        dispatch(resetLabel(currentCounter));
-                        labelInputRef.current?.focus();
+                        dispatch(resetLabel(currentCounter))
+                        labelInputRef.current?.focus()
                       }}
                       className="absolute bottom-0 right-0 p-2 opacity-50 transition-opacity duration-500 ease-out hover:opacity-100"
                     >
@@ -189,23 +189,23 @@ export default function Settings({
                         !e.target.value.match(/^\d+$/) &&
                         e.target.value !== ""
                       )
-                        return;
+                        return
                       dispatch(
                         updateValue({
                           id: currentCounter,
                           value: +e.target.value > 0 ? +e.target.value : 0,
                         }),
-                      );
+                      )
                     }}
                     className="w-full rounded-md bg-white bg-opacity-10 px-2.5 py-1 outline-none transition-all duration-500 ease-out placeholder:text-white focus-within:bg-opacity-20 hover:bg-opacity-20 focus-visible:placeholder:text-opacity-50"
                   />
                   {counters[currentCounter]?.value > 0 && (
                     <button
                       onClick={() => {
-                        dispatch(resetValue(currentCounter));
+                        dispatch(resetValue(currentCounter))
                         if (valueInputRef.current) {
-                          valueInputRef.current.value = "";
-                          valueInputRef.current.focus();
+                          valueInputRef.current.value = ""
+                          valueInputRef.current.focus()
                         }
                       }}
                       className="absolute bottom-0 right-0 p-2 opacity-50 transition-opacity duration-500 ease-out hover:opacity-100"
@@ -239,13 +239,13 @@ export default function Settings({
                         !e.target.value.match(/^\d+$/) &&
                         e.target.value !== ""
                       )
-                        return;
+                        return
                       dispatch(
                         updateGoal({
                           id: currentCounter,
                           value: +e.target.value > 0 ? +e.target.value : null,
                         }),
-                      );
+                      )
                     }}
                     className="w-full rounded-md bg-white bg-opacity-10 px-2.5 py-1 outline-none transition-all duration-500 ease-out placeholder:text-sm placeholder:text-white placeholder:text-opacity-50 focus-within:bg-opacity-20 hover:bg-opacity-20"
                   />
@@ -253,10 +253,10 @@ export default function Settings({
                     counters[currentCounter]?.goal! > 0 && (
                       <button
                         onClick={() => {
-                          dispatch(resetGoal(currentCounter));
+                          dispatch(resetGoal(currentCounter))
                           if (targetInputRef.current) {
-                            targetInputRef.current.value = "";
-                            targetInputRef.current.focus();
+                            targetInputRef.current.value = ""
+                            targetInputRef.current.focus()
                           }
                         }}
                         className="absolute bottom-0 right-0 p-2 opacity-50 transition-opacity duration-500 ease-out hover:opacity-100"
@@ -294,17 +294,17 @@ export default function Settings({
                     <li className="relative flex items-center justify-center">
                       <button
                         onClick={() => {
-                          let color = counters[currentCounter].theme;
+                          let color = counters[currentCounter].theme
                           while (color === counters[currentCounter].theme) {
                             color =
-                              colors[Math.floor(Math.random() * colors.length)];
+                              colors[Math.floor(Math.random() * colors.length)]
                           }
                           dispatch(
                             updateTheme({
                               id: currentCounter,
                               value: color,
                             }),
-                          );
+                          )
                         }}
                         className="h-6 w-6 rounded-full bg-transparent text-center text-sm opacity-25 transition-opacity duration-500 ease-out hover:opacity-50"
                       >
@@ -339,7 +339,7 @@ export default function Settings({
                                 id: currentCounter,
                                 value: color,
                               }),
-                            );
+                            )
                           }}
                           className={`relative z-10 h-6 w-6 rounded-full transition-opacity duration-500 ease-out bg-${color}-primary hover:opacity-100 ${counters[currentCounter]?.theme === color ? "opacity-100" : "opacity-50"}`}
                         ></button>
@@ -376,17 +376,17 @@ export default function Settings({
                     <li className="relative flex items-center justify-center">
                       <button
                         onClick={() => {
-                          let icon = counters[currentCounter].icon;
+                          let icon = counters[currentCounter].icon
                           while (icon === counters[currentCounter].icon) {
                             icon =
-                              icons[Math.floor(Math.random() * icons.length)];
+                              icons[Math.floor(Math.random() * icons.length)]
                           }
                           dispatch(
                             updateIcon({
                               id: currentCounter,
                               value: icon,
                             }),
-                          );
+                          )
                         }}
                         className="h-8 w-8 rounded-full bg-transparent text-center text-sm opacity-25 transition-opacity duration-500 ease-out hover:opacity-50"
                       >
@@ -421,7 +421,7 @@ export default function Settings({
                                 id: currentCounter,
                                 value: icon,
                               }),
-                            );
+                            )
                           }}
                           className={`relative z-10 rounded-full text-2xl transition-opacity duration-500 ease-out hover:opacity-100 ${counters[currentCounter]?.icon === icon ? "opacity-100" : "opacity-50"}`}
                         >
@@ -435,10 +435,10 @@ export default function Settings({
                   <div className="flex items-center gap-1.5">
                     <label
                       onClick={() => {
-                        dispatch(setSplitEnabled(!splitEnabled));
-                        if (!splitEnabled) {
-                          dispatch(setSplitCounter(null));
-                          dispatch(setIsSplit(null));
+                        dispatch(setSplitEnabled(!splitEnabled))
+                        if (splitEnabled) {
+                          dispatch(setSplitCounter(null))
+                          dispatch(setIsSplit(false))
                         }
                       }}
                       className="group inline-flex items-center gap-1.5 text-3xs font-normal uppercase transition-opacity duration-500 ease-out hover:cursor-pointer hover:opacity-50"
@@ -449,16 +449,18 @@ export default function Settings({
                         <CircleIcon className="h-4 w-4" />
                       )}
                       Toggle Split mode
+                      {/*
                       <span className="text-3xs font-normal uppercase opacity-50">
                         (Experimental)
                       </span>
+                      */}
                     </label>
                   </div>
                 </section>
                 <button
                   onClick={() => {
-                    setShowDialog(true);
-                    settingsRef.current!.scrollTo({ top: 0 });
+                    setShowDialog(true)
+                    settingsRef.current!.scrollTo({ top: 0 })
                   }}
                   disabled={counters.length < 2}
                   className="mx-auto w-fit p-2 text-2xs uppercase text-red-700 transition-colors duration-500 ease-out hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-50"
@@ -491,17 +493,17 @@ export default function Settings({
                               counters.length === 2
                               // || currentCounter === splitCounter
                             ) {
-                              dispatch(setIsSplit(false));
-                              dispatch(setSplitCounter(null));
+                              dispatch(setIsSplit(false))
+                              dispatch(setSplitCounter(null))
                             } else if (
                               isSplit &&
                               splitCounter &&
                               splitCounter >= currentCounter
                             )
-                              dispatch(setSplitCounter(splitCounter - 1));
-                            dispatch(deleteCounter(currentCounter));
-                            setShowDialog(false);
-                            setIsOpen(false);
+                              dispatch(setSplitCounter(splitCounter - 1))
+                            dispatch(deleteCounter(currentCounter))
+                            setShowDialog(false)
+                            setIsOpen(false)
                           }}
                           className="select-none text-xs font-semibold uppercase text-red-700 transition-opacity duration-500 ease-out hover:opacity-75"
                         >
@@ -523,5 +525,5 @@ export default function Settings({
         )}
       </AnimatePresence>
     </>
-  );
+  )
 }
